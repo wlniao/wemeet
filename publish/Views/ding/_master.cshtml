@@ -1,0 +1,51 @@
+﻿<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="utf-8" />
+    <meta name=apple-mobile-web-app-capable content="yes" />
+    <meta name=viewport content="width=device-width,initial-scale=1,user-scalable=0" />
+    <link rel="stylesheet" href="//at.alicdn.com/t/font_530706_gwwwttkvyxj.css" />
+    <link rel="stylesheet" href="@ViewBag.Assets/js/vue-ydui/ydui.rem.css" />
+    <link rel="stylesheet" href="/css/wlnapp.css?v=@Html.Raw(ViewBag.ResVersion)" />
+    <link rel="stylesheet" href="/css/sart.css?v=@Html.Raw(ViewBag.ResVersion)" />
+    <script type="text/javascript" src="@ViewBag.Assets/js/vue-ydui/ydui.flexible.js?v=@Html.Raw(ViewBag.ResVersion)"></script>@RenderSection("head", required: false)
+    <style>
+        .yd-tabbar-icon > i {
+            font-size: 30px !important;
+            line-height: 1em !important;
+        }
+    </style>
+</head>
+<body onselectstart="return false" class="dingtalk">
+    <yd-layout id="app">
+        <router-view></router-view>
+        <yd-tabbar slot="tabbar" active-color="#ff524f" :exact="false" v-if="$store.state.navShow">
+            <yd-tabbar-item v-for="(item, index) in $store.state.navList"
+                            :key="index"
+                            :type="item.link ? 'link' : 'a'"
+                            :title="item.title"
+                            :link="item.link ? item.link : item.href"
+                            :dot="item.dot"
+                            :active="item.active">
+                <i slot="icon" :class="'iconfont '+item.icon"></i>
+            </yd-tabbar-item>
+        </yd-tabbar>
+    </yd-layout>
+    @RenderSection("body", required: false)
+    <script type="text/javascript" src="https://cdn.bootcss.com/axios/0.19.0/axios.min.js"></script>
+    <script type="text/javascript" src="https://cdn.bootcss.com/vue/2.6.10/vue.min.js"></script>
+    <script type="text/javascript" src="https://cdn.bootcss.com/vuex/3.1.1/vuex.min.js"></script>
+    <script type="text/javascript" src="https://cdn.bootcss.com/vue-router/3.0.6/vue-router.min.js"></script>
+    <script type="text/javascript" src="@ViewBag.Assets/js/vue-ydui/ydui.rem.js?v=@Html.Raw(ViewBag.ResVersion)"></script>
+    <script type="text/javascript" src="/js/appYdui.js?v=@Html.Raw(ViewBag.ResVersion)"></script>@RenderSection("foot", required: false)
+    <script type="text/javascript">
+        vpath = '/ding';
+        store.state.navShow = false;
+        new Vue({
+            el: '#app',
+            store: store,
+            router: router
+        })
+    </script>
+</body>
+</html>

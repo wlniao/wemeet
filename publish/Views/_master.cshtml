@@ -1,0 +1,18 @@
+﻿<!DOCTYPE html>
+<html lang="zh">
+<head>
+<title>@Html.Raw(ViewBag.SystemName)</title>
+<meta charset="utf-8" />
+<link rel="stylesheet" href="/css/xcenter.css?v=1908" />
+<link rel="stylesheet" href="/js/element/theme-chalk/index.css?v=1908" />
+<link rel="stylesheet" href="/css/wemeet.css?v=1908" />
+<script type="text/javascript" src="/js/axios.min.js"></script>
+<script type="text/javascript" src="/js/vue.min.js"></script>
+<script type="text/javascript" src="/js/vue-router.min.js"></script>
+<script type="text/javascript" src="/js/vue-wlnctrl.js"></script>
+<script type="text/javascript" src="/js/element/index.js"></script>@RenderSection("style", required: false)
+</head>
+<body>
+<div id="app"><router-view></router-view></div>@RenderSection("template", required: false)@RenderSection("script", required: false)
+</body>
+</html>

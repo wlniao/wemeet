@@ -1,0 +1,33 @@
+﻿.wln-table-expand {
+    width: 600px;
+    padding: 10px 10px 10px 50px;
+    background: #f1f4f9;
+}
+.wln-table-expand:hover {
+    background: #f5f7fa;
+}
+.wln-table-expand .wln-expand-title {
+    display: block;
+    font-size: 14px;
+    border-left: 3px solid #009688;
+    padding-left: 3px;
+    line-height: 14px;
+    margin-top: 5px 0;
+    font-weight: bolder;
+}
+.wln-table-expand .wln-expand-remark {
+    font-size: 13px;
+    padding: 8px 0 14px 0;
+}
+.wln-table-expand .wln-expand-downitem{
+    line-height:24px;
+}
+.wln-table-expand .wln-expand-downitem a{
+    color: #1a5fb4;
+    text-decoration: none;
+}
+.optitle {
+    background-color: #969490 !important;
+    line-height: 50px !important;
+    color: black !important;
+}

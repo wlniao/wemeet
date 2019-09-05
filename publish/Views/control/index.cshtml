@@ -1,0 +1,214 @@
+﻿@{ Layout = null;}<!DOCTYPE html>
+<html lang="zh">
+<head>
+<title>@Html.Raw(ViewBag.SystemName)</title>
+<meta charset="utf-8" />
+<link rel="stylesheet" href="/css/xcenter.css?v=190506" />
+<link rel="stylesheet" href="/js/element/theme-chalk/index.css?v=190506" />
+<script type="text/javascript" src="/js/axios.min.js?v=190506"></script>
+<script type="text/javascript" src="/js/vue.min.js?v=190506"></script>
+<script type="text/javascript" src="/js/vue-router.min.js?v=190506"></script>
+<script type="text/javascript" src="/js/element/index.js?v=190506"></script>
+<script type="text/javascript" src="/js/vue-wlnctrl.js?v=190506"></script>
+<style type="text/css">
+    #app {top:0;left:0;right:0;bottom:0;position:absolute;}
+    #left {user-select:none;top:0;left:0;width:168px;bottom:0;position:absolute;background:#1f2126;overflow:hidden;}
+    #left .logo {width:168px;height:60px;min-height:60px;line-height:60px;overflow:hidden;font-size:0px;text-align:center;background:#25282d url('/oem/logo-bar.png') center center no-repeat;background-size:90%;cursor:pointer}
+    #center {top:0px;left:168px;right:0;bottom:0;position:absolute;background:#f9f9f9;}
+    .icon {width:17px;height:16px;vertical-align:-3px;fill:currentColor;overflow:hidden;}
+    .menu {height:100%;overflow-y:auto;overflow-x:hidden;}
+    .menu::after {content:' ';height:70px;display:block;}
+    .menu::-webkit-scrollbar {width:3px;}
+    .menu::-webkit-scrollbar-track {background-color:#F5F5F5;}
+    .menu::-webkit-scrollbar-thumb {background-color:#ff4949;}
+    .menu-title {font-size:12px;color:#585858;padding:12px 10px 0 10px;font-weight:400;}
+    .menu-item {display:block;margin:4px 0px;padding:2px 0px 2px 18px;font-weight:100;color:#9ba3af;cursor:pointer;}
+    .menu-item.has-sub {padding-left:0px;}
+    .menu-item.router-link-exact-active {background:rgba(89,95,105,0.3);}
+    .menu-switch {height:20px;width:100%;display:block;text-align:center;background:#2b2e38;cursor:pointer;}
+    .menu-switch > img {transform:rotate(90deg);width:20px}
+    .min #left,.min #left .logo {width:54px}
+    .min #center {left:54px}
+    .min #left .logo {background-image:url('/oem/logo-min.png')}
+    .min #left .menu-switch > img {transform:rotate(0deg);}
+    .min #left .menu-group {padding-top:0;}
+    .min #left .menu-group:first-child {border-top:none;}
+    .min #left .menu-title,.min #left .menu-item > span {display:none}
+    .el-tabs__header {user-select:none;}
+    .el-tabs__content {top:40px;left:0;right:0;bottom:0;padding:0 !important;position:absolute;}
+    .el-tabs--border-card > .el-tabs__header .el-tabs__item.is-active {height:39px;}
+    #tab-home .el-icon-close {display:none}
+    .usertab {user-select:none;right:0;position:absolute;height:40px;line-height:40px;overflow:hidden;vertical-align:middle;padding:0px 15px;color:#4f5f6f;z-index:1;}
+    .ucenter-name {color:#4f5f6f;float:right;margin-left:15px;text-decoration:none;cursor:pointer;}
+    .ucenter-icon {width:16px;height:16px;vertical-align:-3px;fill:currentColor;overflow:hidden;}
+</style>
+
+</head>
+<body>    
+    <div id="app" :class="{ min: menu === 'min' }">
+        <div id="left" onselectstart="return false;">
+            <div class="logo"></div>
+            <div class="menu" id="menu">
+                <span class="menu-switch" @@click="toggle"><img class="layout-menu-icon" src="/svg/menu-lines.svg" /></span>
+                <div class="menu-group" v-for="group in groups">
+                    <h2 class="menu-title" v-if="groups.length > 1">{{group.title}}</h2>
+                    <div v-for="item in group.items">
+                        <div v-if="item.sublist && item.sublist.length > 0">
+                            <a class="menu-item has-sub" @@click="submenu(group.title, item.name)">
+                                <el-tooltip content="展开/收拢" placement="right">
+                                    <i class="el-icon-arrow-down" v-if="active == group.title + item.name"></i><i class="el-icon-arrow-right" v-else></i>
+                                </el-tooltip>
+                                <el-tooltip :disabled="menu != 'min'" :content="item.name" placement="right">
+                                    <img class="icon" :src="item.icon" />
+                                </el-tooltip>
+                                <span class="text">{{item.name}}</span>
+                            </a>
+                            <div class="menu-item-container" v-if="active == group.title + item.name">
+                                <a class="menu-item menu-item-sub" @@click="openTab(sub.name, sub.action)" v-for="sub in item.sublist">
+                                    <el-tooltip :disabled="menu != 'min'" :content="sub.name" placement="right">
+                                        <img class="icon" :src="sub.icon" />
+                                    </el-tooltip>
+                                    <span class="text">{{sub.name}}</span>
+                                </a>
+                            </div>
+                        </div>
+                        <a class="menu-item" @@click="openTab(item.name, item.action)" v-else>
+                            <el-tooltip :disabled="menu != 'min'" :content="item.name" placement="right">
+                                <img class="icon" :src="item.icon" />
+                            </el-tooltip>
+                            <span class="text">{{item.name}}</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="center">
+            <div class="usertab">
+                <span class="ucenter">
+                    <span class="ucenter-name" @@click="openTab('', 'logout')"><img class="icon" src="/svg/logout.svg" /> <font>注销</font></span>
+                    <span class="ucenter-name" @@click="openTab('用户中心', 'profile')"><img class="icon" src="/svg/ucenter.svg" /> <font>斜阳草树（18623107751）</font></span>
+                </span>
+            </div>
+            <el-tabs v-model="tab" type="border-card" closable @@tab-remove="closeTab" @@tab-click="clickTab">
+                <el-tab-pane name="home">
+                    <span slot="label"><i class="el-icon-date"></i> 首页</span>
+                    <template id="app-home">
+                        <div class="wlogo" onselectstart="return false">
+                            <div style="width:400px;height:75px;display:block;margin:auto;background:url('//static.wlniao.com/wlniao/console.png') center center no-repeat;background-size:100%;"></div>
+                            <p>HTTPS://WWW.WLNIAO.COM&nbsp;服务热线：023-88256732</p>
+                        </div>
+                    </template>
+                </el-tab-pane>
+                <el-tab-pane v-for="item in tabs" :name="item.name">
+                    <span slot="label"><i class="el-icon-date"></i> {{item.name}}</span>
+                    <iframe :src="item.link" frameborder="0" scrolling="auto" style="position:absolute;width:100%;height:100%;overflow:auto"></iframe>
+                </el-tab-pane>
+            </el-tabs>
+        </div>
+    </div>
+
+
+    <script type="text/javascript">
+        var app = new Vue({
+            el: '#app',
+            data: function () {
+                var menus = [];
+                menus.push({ "name": "议题申报", "icon": "/svg/apply.svg", "action": "/apply" });
+                menus.push({ "name": "议题管理", "icon": "/svg/topic.svg", "action": "/topic" });
+                menus.push({ "name": "流程管理", "icon": "/svg/flows.svg", "action": "/flow_scheme" });
+                let obj = { tab: 'home', menu: '', active: '', tabs: [], groups: [{ title: '', items: menus }] };
+                
+                if (typeof sessionStorage.session != 'undefined') {
+                    let tmp = JSON.parse(sessionStorage.session);
+                    tmp.tab && (obj.tab = tmp.tab)
+                    tmp.tabs && (obj.tabs = tmp.tabs)
+                    tmp.menu && (obj.menu = tmp.menu)
+                    tmp.active && (obj.active = tmp.active)
+                }
+                return obj
+            },
+            methods: {
+                updateTab(action, name) {
+                    name = name || t.tab
+                    let t = this
+                    let i = t.tabs.indexOf(t.tabs.filter(tab => tab.name === name)[0])
+                    if (i < 0) {
+                        i = t.tabs.indexOf(t.tabs.filter(tab => tab.name === t.tab)[0])
+                    }
+                    if (i >= 0) {
+                        t.tab = name
+                        t.tabs.splice(i, 1);
+                        t.tabs.splice(i, 0, { name: t.tab, link: action });
+                        t.save()
+                    }
+                },
+                activeTab(name) {
+                    if (this.tabs.indexOf(this.tabs.filter(tab => tab.name === name)[0]) >= 0) {
+                        this.tab = name
+                        this.save()
+                    }
+                },
+                openTab(name, action) {
+                    if (action == 'logout') {
+                        Vue.prototype.$confirm('您正在注销登录, 是否继续?', '提示', {
+                            confirmButtonText: '立即退出',
+                            cancelButtonText: '取消',
+                            type: 'warning'
+                        }).then(() => {
+                            location.href = '/logout'
+                        }).catch(() => { });
+                    } else if (name && action) {
+                        let t = this
+                        let i = t.tabs.indexOf(t.tabs.filter(tab => tab.name === name)[0])
+                        if (i < 0) {
+                            if (t.tabs.length > 5) {
+                                t.tabs.splice(0, 1);
+                            }
+                            t.tabs.push({ name: name, link: action });
+                            t.tab = name
+                            t.save()
+                        } else {
+                            t.tabs.splice(i, 1);
+                            setTimeout(function () {
+                                t.tabs.splice(i, 0, { name: name, link: action });
+                                t.tab = name
+                                t.save()
+                            }, 10)
+                        }
+                    }
+                },
+                closeTab(name) {
+                    let t = this
+                    t.tabs = t.tabs.filter(tab => tab.name !== name);
+                    t.tab = t.tabs.length > 0 ? t.tabs[t.tabs.length - 1].name : 'home';
+                    t.save()
+                },
+                clickTab(e) {
+                    this.tab = e.name
+                    this.save()
+                },
+                submenu(group, item) {
+                    this.active === (group + item) ? (this.active = '') : (this.active = group + item)
+                    this.save()
+                },
+                toggle() {
+                    this.menu === 'min' ? (this.menu = '') : (this.menu = 'min')
+                    this.save()
+                },
+                save() {
+                    sessionStorage.setItem('session', JSON.stringify({ tab: this.tab, menu: this.menu, active: this.active, tabs: this.tabs }));
+                }
+            }
+        });
+        function activeTab(title) {
+            app.activeTab(title)
+        }
+        function openTab(url, title) {
+            app.openTab(title || '新窗口', url)
+        }
+        function setTab(url, title) {
+            app.updateTab(url, title)
+        }
+    </script>
+</body>
+</html>

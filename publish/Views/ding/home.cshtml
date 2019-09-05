@@ -1,0 +1,57 @@
+﻿@{ Layout = "_master.cshtml";}
+@section head{
+    <style>
+    </style>
+}
+@section body{
+    <template id="main">
+        <div>
+            <yd-grids-group :rows="4" title="小助手">
+                <yd-grids-item @@click.native="toSartRecord">
+                    <yd-icon slot="icon" name="feedback" color="#FF685D"></yd-icon>
+                    <span slot="text">成功率测试</span>
+                </yd-grids-item>
+            </yd-grids-group>
+            <yd-grids-group :rows="4" title="客户管理">
+                <yd-grids-item @@click.native="toMemberList">
+                    <yd-icon slot="icon" name="order" color="#4caf50"></yd-icon>
+                    <span slot="text">用户列表</span>
+                </yd-grids-item>
+                <yd-grids-item @@click.native="toMemberLogs">
+                    <yd-icon slot="icon" name="shield" color="#2884EB"></yd-icon>
+                    <span slot="text">客户跟进</span>
+                </yd-grids-item>
+            </yd-grids-group>
+        </div>
+    </template>
+}
+@section foot{
+    <script type="text/javascript">
+        var appMain = Vue.extend({
+            template: '#main',
+            data: function () {
+                return {
+                    key: ''
+                }
+            },
+            methods: {
+                toSartRecord: function () {
+                    location.href = vpath + '/sart'
+                },
+                toMemberList: function () {
+                    location.href = vpath + '/memberlist'
+                },
+                toMemberLogs: function () {
+                    location.href = vpath + '/memberlogs'
+                },
+            }, mounted() {
+                document.title = '有喜健康钉钉助手'
+            }
+        })
+        router = new VueRouter({
+            mode: 'history', routes: [
+                { path: location.pathname, component: appMain }
+            ]
+        })
+    </script>
+}

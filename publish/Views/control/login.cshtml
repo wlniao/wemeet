@@ -1,0 +1,91 @@
+﻿@{Layout = null;}<!DOCTYPE html>
+<html lang="zh">
+<head>
+<title>@Html.Raw(ViewBag.SystemName)</title>
+<meta charset="utf-8" />
+<link rel="stylesheet" href="/css/xcenter.css?v=1908" />
+<link rel="stylesheet" href="/js/element/theme-chalk/index.css?v=1908" />
+<link rel="stylesheet" href="/css/wemeet.css?v=1908" />
+<script type="text/javascript" src="/js/axios.min.js"></script>
+<script type="text/javascript" src="/js/vue.min.js"></script>
+<script type="text/javascript" src="/js/vue-router.min.js"></script>
+<script type="text/javascript" src="/js/vue-wlnctrl.js"></script>
+<script type="text/javascript" src="/js/element/index.js"></script>
+<style type="text/css">
+* {margin:0px;padding:0px;user-select:none;}
+html,body {width:100%;height:100%;display:table;}
+body {position:fixed;z-index:-1;top:0;right:0;bottom:0;left:0;background:#909090 url('/oem/login.jpg') center center no-repeat;background-size:cover;text-align:center;font-family:"Arial","Microsoft YaHei","黑体","宋体",sans-serif;}
+.main {width:100%;height:100%;display:table-cell;text-align:center;vertical-align:middle;}
+.container {width:520px;height:300px;display:inline-block;}
+.tabs {width:100%;height:50px;display:table;}
+.tab-item {width:33.3%;height:100%;cursor:pointer;font-size:20px;letter-spacing:3px;display:table-cell;text-align:center;vertical-align:middle;background-color:rgba(76,76,76,0.6);color:rgba(255,255,255,0.75);}
+.tab-item.active {cursor:default;background-color:rgba(255,255,255,0.75);color:#333333;}
+.tab-item.desabled {background-color:rgba(255,255,255,0);}
+.boxs {min-height:120px;padding:15px;background-color:rgba(255,255,255,0.75);}
+.form {margin-left:-24px;}
+.form label {width:70px;color:#8a8a8a;font-size:15px;line-height:24px;display:inline-block;margin-top:12px;margin-bottom:5px;}
+.form input {font-size:16px;font-weight:bolder;line-height:1;width:200px;height:36px;margin:0;padding:0 10px;-webkit-transition:all .25s ease;transition:border .25s ease;text-align:left;color:#3d444f;border:1px solid #ccd1d9;border-radius:2px;outline:0;background-color:#fff;box-shadow:none;}
+.form input::-webkit-input-placeholder {color:#999;font-weight:normal;}
+.submit {width:222px;color:#ffffff;cursor:pointer;letter-spacing:10px;background:#cf712b;margin-top:10px;margin-left:70px;display:inline-block;padding:6px 0px;border:none;}
+.copyright {color:#a7aaaf;margin-top:15px;font-size:13px;}
+</style>
+</head>
+<body onselectstart="return false">
+    <div class="main" id="app">
+        <div class="container">
+            <div class="tabs">
+                <div class="tab-item" v-on:click="setTab(0)" v-bind:class="{active:tab===0}">管理登录</div>
+            </div>
+            <div class="boxs">
+                <div class="form">
+                    <div>
+                        <label>用户名：</label><input v-model="username" type="text" />
+                    </div>
+                    <div>
+                        <label>密　码：</label><input v-model="password" type="password" @@keydown="toSubmit($event)" />
+                    </div>
+                    <div>
+                        <button class="submit" @@click="toLogin()">登录</button>
+                    </div>
+                </div>
+                <div class="copyright">版权所有 &copy; 未来鸟软件</div>
+            </div>
+        </div>
+    </div>
+    <script type="text/javascript">
+        new Vue({
+            el: '#app',
+            data: {
+                tab: 0,
+                username: '',
+                password: ''
+            },
+            methods: {
+                setTab(index) {
+                    if (index > 0) {
+                        return Vue.prototype.$message({ message: '暂未支持此登录方式', type: 'error' })
+                    }
+                    this.tab = index
+                },
+                toLogin() {
+                    get(location.pathname, { 'do': 'login', username: this.username, password: this.password }).then(res => {
+                        if (res.success) {
+                            sessionStorage.removeItem('console')
+                            location.href = '/'
+                        } else {
+                            Vue.prototype.$message({ message: res.message, type: 'error' })
+                        }
+                    })
+                },
+                toSubmit(event) {
+                    if (event.keyCode != 13) {
+                        return
+                    } else {
+                        this.toLogin()
+                    }
+                }
+            }
+        })
+    </script>
+</body>
+</html>

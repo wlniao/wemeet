@@ -1,0 +1,32 @@
+﻿html, body {
+    height: 100%;
+    width: 100%;
+    overflow-x: hidden;
+}
+#app {
+    height: auto !important;
+    position: absolute !important;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+}
+.dingtalk::before {
+    display: block;
+    height: 1px;
+    width: 100%;
+    content: ' ';
+    font-size: 0;
+    background: #e9e9e9;
+}
+.dingtalk #app {
+    top: 1px;
+}
+
+.icon {
+    width: 1em;
+    height: 1em;
+    vertical-align: -0.15em;
+    fill: currentColor;
+    overflow: hidden;
+}

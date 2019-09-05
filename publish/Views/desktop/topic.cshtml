@@ -1,0 +1,235 @@
+﻿@section template{
+<template id="app-main">
+    <div class="wln-layout">
+        <div class="wln-table-layout">
+            <div class="wln-table-cell options">
+                <div class="option optitle">议题状态</div>
+                <div v-for="item in options" :class="{option:true,active:item.id == active}" v-on:click="option(item.id)">{{item.name}}</div>
+            </div>
+            <div class="wln-table-cell">
+                <div class="wln">
+                    <div>
+                        录入时间：<el-date-picker v-model="times" :editable="false" type="daterange" value-format="timestamp" format="yyyy-MM-dd" range-separator=" - " :picker-options="pickerOptions" placeholder="请选择筛选时段" style="width:270px;"></el-date-picker>
+                        关键词：<el-input v-model="key" placeholder="按 标题、内容、附件 筛选" style="width:300px" @@keydown.enter.native="refresh"></el-input>
+                        <el-button type="primary" v-on:click="refresh">筛选</el-button><el-button type="primary" v-on:click="toAdd" icon="el-icon-plus">添加议题</el-button>
+                    </div>
+                    <div class="wln-line"></div>
+                    <el-table :data="rows" :empty-text="message">
+                        <el-table-column type="expand">
+                            <template scope="scope">
+                                <el-form label-position="right" inline class="wln-table-expand">
+                                    <div class="wln-expand-title">议题内容</div>
+                                    <div class="wln-expand-remark"><font v-if="scope.row.content">{{scope.row.content}}</font><font v-else style="color:#999999">未填写议题内容</font></div>
+                                    <div class="wln-expand-title">参会成员</div>
+                                    <div class="wln-expand-remark"><font v-if="scope.row.participantnames">{{scope.row.participantnames}}</font><font v-else style="color:#999999">未选择参会成员</font></div>
+                                    <div class="wln-expand-title">议题资料</div>
+                                    <div class="wln-expand-remark">
+                                        <font v-if="scope.row.files.length == 0" style="color:#999999">未上传议题资料</font>
+                                        <div class="wln-expand-downitem" v-for="file in scope.row.files">
+                                            <i class="el-icon-paperclip"></i><a :href="file.link" target="_blank">{{file.name}}</a>
+                                        </div>
+                                    </div>
+                                </el-form>
+                            </template>
+                        </el-table-column>
+                        <el-table-column align="left" label="标题" property="title"></el-table-column>
+                        <el-table-column width="168" align="center" label="申报/录入人" property="username"></el-table-column>
+                        <el-table-column width="168" align="center" label="时间" property="create"></el-table-column>
+                        <el-table-column width="168" align="right">
+                            <template scope="scope" v-if="active == 1">
+                                <el-button size="mini" type="primary" @@click="toEdit(scope.row.id)">编辑</el-button>
+                                <el-button size="mini" type="info" @@click="toDel(scope.row.id)">删除</el-button>
+                            </template>
+                        </el-table-column>
+                    </el-table>
+                    <el-pagination @@current-change="pageset" layout="total, prev, pager, next, jumper" :current-page="page" :page-size="size" :total="total"></el-pagination>
+                </div>
+            </div>
+        </div>
+        <div class="wln-mask-layout" v-if="mask">
+            <div class="wln-mask-body" style="width:800px;margin-top:5%;">
+                <div class="wln-mask-head">议题内容</div>
+                <el-form ref="form" v-model="form" label-width="120px">
+                    <el-form-item label="议题名称">
+                        <el-input v-model="form.title" placeholder="" style="width:500px"></el-input>
+                    </el-form-item>
+                    <el-form-item label="审议内容">
+                        <el-input type="textarea" v-model="form.content" rows="3" style="width:500px"></el-input>
+                    </el-form-item>
+                    <el-form-item label="议题资料">
+                        <el-upload :file-list="files" action="/upload" accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.zip,.rar" multiple style="width:500px"
+                                   :on-preview="handlePreview"
+                                   :on-remove="handleRemove"
+                                   :on-change="handleChange"
+                                   :before-remove="beforeRemove">
+                            <el-button size="mini" type="primary">点击上传</el-button> <span class="el-upload__tip">只能上传pdf/doc/docx/xls/xlsx/ppt/pptx/zip/rar文件，且不超过20M</span>
+                        </el-upload>
+                    </el-form-item>
+                    <el-form-item label="列席成员">
+                        <div v-on:click="contactShow" style="width:500px;min-height:60px;border:1px solid #DCDFE6;border-radius:4px;padding:5px 15px;line-height:1.5;box-sizing:border-box;background:#fdfdfd">
+                            <font v-if="form.participantnames">{{form.participantnames}}</font><font v-else style="color:#999999">点击选择</font>
+                        </div>
+                    </el-form-item>
+                    <el-form-item label="预计时长">
+                        <el-input v-model="form.duration" style="width:80px"></el-input> 分钟
+                    </el-form-item>
+                    <el-form-item>
+                        <el-button size="small" icon="el-icon-check" type="primary" v-on:click="doSubmit">保存</el-button>
+                        <el-button size="small" icon="el-icon-close" v-on:click="close">取消</el-button>
+                    </el-form-item>
+                </el-form>
+            </div>
+        </div>
+        <ding-contact ref="contact" v-on:change="contactChange"></ding-contact>
+    </div>
+</template>
+}
+@section script{
+<script src="/js/dingContact.js"></script>
+<script type="text/javascript">
+    let id =0
+    var vpath = "/@ViewBag.Action";
+    var form = { id: '', title: '', content: '', files: '', duration: '', participant: '', participantnames: '' }
+    var appMain = Vue.extend({
+        template: '#app-main',
+        data: function () {
+            ds.mask = false
+            ds.form = {}
+            ds.files = []
+            ds.times = []
+            ds.active = 1;
+            ds.options = [{ id: 1, name: '待召开' }, { id: 2, name: '已召开' }, { id: 3, name: '申报中' }]
+            ds.pickerOptions = {
+                shortcuts: [
+                { text: '昨天', onClick(picker) { picker.$emit('pick', [new Date('@ViewBag.Yeserday'), new Date('@ViewBag.Yeserday')]) } },
+                { text: '今天', onClick(picker) { picker.$emit('pick', [new Date('@ViewBag.Today'), new Date('@ViewBag.Today')]) } },
+                { text: '本月', onClick(picker) { picker.$emit('pick', [new Date('@ViewBag.MonthStart'), new Date('@ViewBag.MonthEnd')]) } },
+                { text: '本季度', onClick(picker) { picker.$emit('pick', [new Date('@ViewBag.QuarterStart'), new Date('@ViewBag.QuarterEnd')]) } },
+                { text: '本年度', onClick(picker) { picker.$emit('pick', [new Date('@ViewBag.YearStart'), new Date('@ViewBag.YearEnd')]) } },
+                { text: '上月', onClick(picker) { picker.$emit('pick', [new Date('@ViewBag.PrevMonthStart'), new Date('@ViewBag.PrevMonthEnd')]) } },
+                { text: '上季度', onClick(picker) { picker.$emit('pick', [new Date('@ViewBag.PrevQuarterStart'), new Date('@ViewBag.PrevQuarterEnd')]) } },
+                { text: '上年度', onClick(picker) { picker.$emit('pick', [new Date('@ViewBag.PrevYearStart'), new Date('@ViewBag.PrevYearEnd')]) } }]
+            }
+            for (var i in form) { ds.form[i] = form[i] };
+            return ds
+        },
+        methods: {
+            pager() {
+                let t = this;
+                asyncGet(location.pathname + '?do=pager', { page: t.page, size: t.size, key: t.key, active: t.active, start: t.times.length == 2 ? t.times[0] : 0, end: t.times.length == 2 ? t.times[1] : 0 }).then(res => {
+                    t.message = res.message;
+                    t.total = res.total;
+                    t.page = res.page;
+                    t.rows = res.rows;
+                });
+            },
+            refresh() {
+                this.total = 0
+                this.page = 0
+                this.rows = []
+                this.pager()
+            },
+            pageset(val) {
+                this.page = val;
+                this.pager();
+            },
+            option(op) {
+                this.active = op
+                this.refresh()
+            },
+            close() {
+                this.mask = false
+                this.option(1)
+            },
+            contactShow() {
+                this.$refs.contact.show(this.form.participant.split(','), this.form.names)
+            },
+            contactChange(select, names) {
+                this.form.participantnames = names
+                this.form.participant = select.join()
+            },
+            toAdd() {
+                let t = this
+                t.mask = true
+                t.files = []
+                for (var i in form) { t.form[i] = form[i] };
+            },
+            toDel(id) {
+                let t = this;
+                Vue.prototype.$confirm('您正在删除所选议题, 是否继续?', '提示', {
+                    confirmButtonText: '确定',
+                    cancelButtonText: '取消',
+                    type: 'warning'
+                }).then(() => {
+                    post(location.pathname + '?do=del', { id: id }).then(res => {
+                        t.refresh()
+                        Vue.prototype.$message({ type: res.success ? 'success' : 'error', message: res.message })
+                    })
+                }).catch(() => {
+                    Vue.prototype.$message({ type: 'info', message: '操作已取消' })
+                })
+            },
+            toEdit(id) {
+                let t = this
+                t.mask = true
+                t.files = []
+                for (var i in form) { t.form[i] = form[i] };
+                post(location.pathname + '?do=get', {id:id}).then(res => {
+                    if (res.success) {
+                        t.mask = true
+                        t.files = JSON.parse(res.files)
+                        for (var i in form) { t.form[i] = res[i] };
+                    } else {
+                        Vue.prototype.$message({ type: res.success ? 'success' : 'error', message: res.message })
+                    }
+                })
+            },
+            doSubmit: function () {
+                let t = this
+                let files = [];
+                for (let i = 0; i < t.files.length; i++) {
+                    let file = t.files[i];
+                    if (file.url) {
+                        files.push({ name: file.name, url: file.url });
+                    } else if (file.response && file.response.url) {
+                        files.push({ name: file.name, url: file.response.url });
+                    }
+                }
+                t.form.files = JSON.stringify(files);
+                post(location.pathname + '?do=set', t.form).then(res => {
+                    Vue.prototype.$message({ type: res.success ? 'success' : 'error', message: res.message })
+                    if (res.success) {
+                        t.mask = false
+                        t.refresh()
+                    }
+                })
+            },
+            view(id) {
+                return Vue.prototype.$message({ type: 'info', message: '正在开发中' });
+                //location.href = 'teams?m=' + id;
+            },
+            handleChange(file, fileList) {
+                this.files = fileList
+            },
+            handleRemove(file, fileList) {
+                console.log(file, fileList);
+            },
+            handlePreview(file) {
+                console.log(file);
+            },
+            beforeRemove(file, fileList) {
+                return this.$confirm(file.name, '确定删除？');
+            }
+        }, created() {
+            this.refresh()
+        }
+    })
+    new Vue({
+        el: '#app', router: new VueRouter({
+            mode: 'history', routes: [
+                { path: vpath, component: appMain }
+            ]
+        })
+    });
+</script>
+}

@@ -1,0 +1,90 @@
+﻿@section template{
+<template id="app-main">
+    <div class="wln-layout">
+        <div class="wln">
+            <div>
+                关键词：<el-input v-model="key" placeholder="按 标题 筛选" style="width:300px" @@keydown.enter.native="refresh"></el-input>
+                <el-button type="primary" v-on:click="refresh">筛选</el-button><el-button type="primary" v-on:click="toAdd" icon="el-icon-plus">新建流程</el-button>
+            </div>
+            <div class="wln-line"></div>
+            <el-table :data="rows" :empty-text="message">
+                <el-table-column align="left" label="标题" property="title"></el-table-column>
+                <el-table-column width="168" align="left" label="编程代码" property="code"></el-table-column>
+                <el-table-column width="168" align="center" label="更新时间" property="update"></el-table-column>
+                <el-table-column width="168" align="right">
+                    <template scope="scope">
+                        <el-button size="mini" type="primary" @@click="toEdit(scope.row)">编辑</el-button>
+                        <el-button size="mini" type="info" @@click="toDel(scope.row.id)">删除</el-button>
+                    </template>
+                </el-table-column>
+            </el-table>
+            <el-pagination @@current-change="pageset" layout="total, prev, pager, next, jumper" :current-page="page" :page-size="size" :total="total"></el-pagination>
+        </div>
+    </div>
+</template>
+}
+@section script{
+<script type="text/javascript">
+    let id =0
+    var vpath = "/@ViewBag.Action";
+    var appMain = Vue.extend({
+        template: '#app-main',
+        data: function () {
+            return ds
+        },
+        methods: {
+            pager() {
+                let t = this;
+                asyncGet(location.pathname + '?do=pager', { page: t.page, size: t.size, key: t.key }).then(res => {
+                    t.message = res.message;
+                    t.total = res.total;
+                    t.page = res.page;
+                    t.rows = res.rows;
+                });
+            },
+            refresh() {
+                this.total = 0
+                this.page = 0
+                this.rows = []
+                this.pager()
+            },
+            pageset(val) {
+                this.page = val;
+                this.pager();
+            },
+            toAdd() {
+                this.$prompt('请输入编程代码（可忽略）', '', { inputValue: '' }).then(({ value }) => {
+                    location.href = 'flow_design?code=' + value;
+                }).catch(() => { });
+            },
+            toDel(id) {
+                let t = this;
+                Vue.prototype.$confirm('您正在删除所选议题, 是否继续?', '提示', {
+                    confirmButtonText: '确定',
+                    cancelButtonText: '取消',
+                    type: 'warning'
+                }).then(() => {
+                    post(location.pathname + '?do=del', { id: id }).then(res => {
+                        t.refresh()
+                        Vue.prototype.$message({ type: res.success ? 'success' : 'error', message: res.message })
+                    })
+                }).catch(() => {
+                    Vue.prototype.$message({ type: 'info', message: '操作已取消' })
+                })
+            },
+            toEdit(row) {
+                location.href = 'flow_design?id=' + row.id + '&code=' + row.code;
+            }
+        }, created() {
+            this.refresh()
+        }
+    })
+    new Vue({
+        el: '#app', router: new VueRouter({
+            mode: 'history', routes: [
+                { path: vpath, component: appMain }
+            ]
+        })
+    });
+</script>
+}
