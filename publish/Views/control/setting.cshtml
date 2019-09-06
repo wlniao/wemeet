@@ -1,0 +1,83 @@
+﻿<style>
+    input[type=text], input[type=tel], input[type=password], select, textarea {
+        line-height: 36px;
+        box-sizing: border-box;
+        border: 1px solid #d8dce5;
+        padding: 0 2px;
+        vertical-align: middle;
+    }
+
+    .el-select__input[type=text] {
+        border: none;
+    }
+</style>
+@section template{
+    <template id="app-main">
+        <div class="wln-layout">
+            <div style="height:30px;"></div>
+            <el-form label-width="180px">
+                <el-form-item label="组织机构名称">
+                    <el-input v-model="cfg.organ" placeholder="必填" style="width:240px"></el-input>
+                </el-form-item>
+                <el-form-item label="钉钉企业CorpId">
+                    <el-input v-model="cfg.ding_corpid" placeholder="必填" style="width:240px"></el-input>
+                </el-form-item>
+                <el-form-item label="自建应用AppKey">
+                    <el-input v-model="cfg.ding_appkey" placeholder="必填" style="width:240px"></el-input>
+                </el-form-item>
+                <el-form-item label="自建应用Secret">
+                    <el-input v-model="cfg.ding_secret" placeholder="必填" style="width:540px"></el-input>
+                </el-form-item>
+                <el-form-item>
+                    <el-button size="small" icon="el-icon-check" type="primary" @@click="check">检查配置是否正确</el-button>
+                    <el-button size="small" icon="el-icon-edit" type="primary" @@click="save">保存配置</el-button>
+                </el-form-item>
+            </el-form>
+        </div>
+    </template>
+}
+@section script{
+    <script type="text/javascript">
+        var vpath = "/@ViewBag.Action";
+        var appMain = Vue.extend({
+            template: '#app-main',
+            data: function () {
+                ds.cfg = {
+                    organ: '',
+                    ding_corpid: '',
+                    ding_appkey: '',
+                    ding_secret: '',
+                    success: false
+                }
+                return ds;
+            },
+            methods: {
+                check() {
+                    post(location.pathname + '?do=check', this.cfg).then(res => {
+                        Vue.prototype.$message({ type: res.success ? 'success' : 'error', message: res.message })
+                        if (res.success) {
+                            this.cfg.organ = res.organ;
+                        }
+                    })
+                },
+                save() {
+                    post(location.pathname + '?do=save', this.cfg).then(res => {
+                        Vue.prototype.$message({ type: res.success ? 'success' : 'error', message: res.message })
+                    })
+                }
+            },
+            mounted() {
+                get(location.pathname + '?do=load').then(res => {
+                    for (let i in res) { this.cfg[i] = res[i]; }
+                });
+            }
+        })
+        new Vue({
+            el: '#app', router: new VueRouter({
+                mode: 'history', routes: [
+                    { path: vpath, component: appMain }
+                ]
+            })
+        });
+    </script>
+}

@@ -1,0 +1,64 @@
+﻿@section style{
+<style>
+    .card {
+        width: 200px;
+        margin: 15px 0px 15px 20px;
+        cursor: pointer;
+        background:#558B2F;
+        display: inline-block;
+    }
+    .card:hover{opacity:0.9}
+    .card .image {
+        width: 60%;
+        height: 100px;
+        display: block;
+        background: #ffffff;
+        -webkit-mask-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAANSURBVBhXY2BgYGAAAAAFAAGKM+MAAAAAAElFTkSuQmCC");
+        -webkit-mask-position: 50% 50%;
+        -webkit-mask-repeat: no-repeat;
+        -webkit-mask-size: 120px;
+        padding: 10% 20%;
+    }
+    .bottom {font-size:20px;text-align:center;font-family:Microsoft YaHei;line-height:60px;background:#ffffff}
+</style>
+}
+@section template{
+<template id="app-main">
+    <div class="wln-layout">
+
+        <el-card class="card" :body-style="{padding:'0px'}" onclick="location.href = '/apply'">
+            <div class="image" style="mask-image:url(/svg/apply.svg)"></div>
+            <div class="bottom">议题申报</div>
+        </el-card>
+        <el-card class="card" :body-style="{padding:'0px'}" onclick="location.href = '/topic'">
+            <img class="image" style="mask-image:url(/svg/topic.svg)">
+            <div class="bottom">议题管理</div>
+        </el-card>
+    </div>
+</template>
+}
+@section script{
+<script type="text/javascript">
+    var vpath = "/@ViewBag.Action";
+    var appMain = Vue.extend({
+        template: '#app-main',
+        data: function () {
+            return ds
+        },
+        methods: {
+            logout() {
+                location.href = '/logout'
+            }
+        }, created() {
+
+        }
+    });
+    new Vue({
+        el: '#app', router: new VueRouter({
+            mode: 'history', routes: [
+                { path: vpath, component: appMain }
+            ]
+        })
+    });
+</script>
+}

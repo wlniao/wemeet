@@ -25,6 +25,7 @@
     .menu-item {display:block;margin:4px 0px;padding:2px 0px 2px 18px;font-weight:100;color:#9ba3af;cursor:pointer;}
     .menu-item.has-sub {padding-left:0px;}
     .menu-item.router-link-exact-active {background:rgba(89,95,105,0.3);}
+    .menu-icon {width:16px;height:16px;display:inline-block;vertical-align:middle;background: #9ba3af;-webkit-mask: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAANSURBVBhXY2BgYGAAAAAFAAGKM+MAAAAAAElFTkSuQmCC") no-repeat 50% 50% /16px;}
     .menu-switch {height:20px;width:100%;display:block;text-align:center;background:#2b2e38;cursor:pointer;}
     .menu-switch > img {transform:rotate(90deg);width:20px}
     .min #left,.min #left .logo {width:54px}
@@ -59,14 +60,14 @@
                                     <i class="el-icon-arrow-down" v-if="active == group.title + item.name"></i><i class="el-icon-arrow-right" v-else></i>
                                 </el-tooltip>
                                 <el-tooltip :disabled="menu != 'min'" :content="item.name" placement="right">
-                                    <img class="icon" :src="item.icon" />
+                                    <em class="menu-icon" :style="{'mask-image':'url('+item.icon+')'}"></em>
                                 </el-tooltip>
                                 <span class="text">{{item.name}}</span>
                             </a>
                             <div class="menu-item-container" v-if="active == group.title + item.name">
                                 <a class="menu-item menu-item-sub" @@click="openTab(sub.name, sub.action)" v-for="sub in item.sublist">
                                     <el-tooltip :disabled="menu != 'min'" :content="sub.name" placement="right">
-                                        <img class="icon" :src="sub.icon" />
+                                        <em class="menu-icon" :style="{'mask-image':'url('+sub.icon+')'}"></em>
                                     </el-tooltip>
                                     <span class="text">{{sub.name}}</span>
                                 </a>
@@ -74,7 +75,7 @@
                         </div>
                         <a class="menu-item" @@click="openTab(item.name, item.action)" v-else>
                             <el-tooltip :disabled="menu != 'min'" :content="item.name" placement="right">
-                                <img class="icon" :src="item.icon" />
+                                <em class="menu-icon" :style="{'mask-image':'url('+item.icon+')'}"></em>
                             </el-tooltip>
                             <span class="text">{{item.name}}</span>
                         </a>
@@ -86,7 +87,7 @@
             <div class="usertab">
                 <span class="ucenter">
                     <span class="ucenter-name" @@click="openTab('', 'logout')"><img class="icon" src="/svg/logout.svg" /> <font>注销</font></span>
-                    <span class="ucenter-name" @@click="openTab('用户中心', 'profile')"><img class="icon" src="/svg/ucenter.svg" /> <font>斜阳草树（18623107751）</font></span>
+                    <span class="ucenter-name" @@click="openTab('用户中心', 'profile')"><img class="icon" src="/svg/organ.svg" /> <font>@Html.Raw(ViewBag.OrganName)@if(ViewBag.IsSuper){<text>（管理员）</text>}</font></span>
                 </span>
             </div>
             <el-tabs v-model="tab" type="border-card" closable @@tab-remove="closeTab" @@tab-click="clickTab">
@@ -115,9 +116,12 @@
                 var menus = [];
                 menus.push({ "name": "议题申报", "icon": "/svg/apply.svg", "action": "/apply" });
                 menus.push({ "name": "议题管理", "icon": "/svg/topic.svg", "action": "/topic" });
+                @if(ViewBag.IsSuper){<text>
                 menus.push({ "name": "流程管理", "icon": "/svg/flows.svg", "action": "/flow_scheme" });
-                let obj = { tab: 'home', menu: '', active: '', tabs: [], groups: [{ title: '', items: menus }] };
-                
+                menus.push({ "name": "系统设置", "icon": "/svg/setting.svg", "action": "/setting" });
+                </text>}
+
+                let obj = { tab: 'home', menu: '', active: '', tabs: [], groups: [{ title: '', items: menus }] };                
                 if (typeof sessionStorage.session != 'undefined') {
                     let tmp = JSON.parse(sessionStorage.session);
                     tmp.tab && (obj.tab = tmp.tab)

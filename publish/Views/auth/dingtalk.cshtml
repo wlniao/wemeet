@@ -1,0 +1,38 @@
+﻿@{ Layout = null;}<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="utf-8" />
+    <script type="text/javascript" src="@ViewBag.Assets/js/axios.min.js?@ViewBag.ResVersion"></script>
+    <script type="text/javascript" src="//g.alicdn.com/dingding/dingtalk-jsapi/2.6.41/dingtalk.open.js"></script>
+</head>
+<body>
+    <script>
+        function check(obj) {
+            axios.create({ withCredentials: false }).post(location.pathname + '?do=check', obj).then(res => res.data).then(res => {
+                if (res.success) {
+                    location.reload();
+                } else if (res.message == 'nouser') {
+                    location.href = location.pathname + '?=' + res.message;
+                } else {
+                    alert(res.message)
+                }
+            })
+        }
+        if (dd.other) {
+            check({});
+        } else {
+            dd.ready(function () {
+                dd.runtime.permission.requestAuthCode({
+                    corpId: "@Html.Raw(ViewBag.DingCorpId)", // 企业id
+                    onFail: function (err) {
+                        alert(err.errorMessage)
+                    },
+                    onSuccess: function (info) {
+                        check(info)
+                    }
+                });
+            });
+        }
+    </script>
+</body>
+</html>
