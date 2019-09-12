@@ -53,7 +53,10 @@
                 this.pager();
             },
             toAdd() {
-                this.$prompt('请输入编程代码（可忽略）', '', { inputValue: '' }).then(({ value }) => {
+                location.href = 'flow_design';
+            },
+            toAddCode() {
+                this.$prompt('请输入编程代码（不可修改）', '', { inputValue: '' }).then(({ value }) => {
                     location.href = 'flow_design?code=' + value;
                 }).catch(() => { });
             },

@@ -114,6 +114,7 @@
             el: '#app',
             data: function () {
                 var menus = [];
+                menus.push({ "name": "待办任务", "icon": "/svg/task.svg", "action": "/task" });
                 menus.push({ "name": "议题申报", "icon": "/svg/apply.svg", "action": "/apply" });
                 menus.push({ "name": "议题管理", "icon": "/svg/topic.svg", "action": "/topic" });
                 @if(ViewBag.IsSuper){<text>

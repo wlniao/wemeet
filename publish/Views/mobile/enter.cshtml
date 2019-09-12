@@ -6,20 +6,18 @@
 @section body{
     <template id="main">
         <div>
-            <yd-grids-group :rows="4" title="小助手">
-                <yd-grids-item @@click.native="toSartRecord">
+            <yd-grids-group :rows="3">
+                <yd-grids-item @@click.native="toFlows(0)">
                     <yd-icon slot="icon" name="feedback" color="#FF685D"></yd-icon>
-                    <span slot="text">成功率测试</span>
+                    <span slot="text">待我处理</span>
                 </yd-grids-item>
-            </yd-grids-group>
-            <yd-grids-group :rows="4" title="客户管理">
-                <yd-grids-item @@click.native="toMemberList">
+                <yd-grids-item @@click.native="toFlows(1)">
                     <yd-icon slot="icon" name="order" color="#4caf50"></yd-icon>
-                    <span slot="text">用户列表</span>
+                    <span slot="text">我已处理</span>
                 </yd-grids-item>
-                <yd-grids-item @@click.native="toMemberLogs">
+                <yd-grids-item @@click.native="toFlows(2)">
                     <yd-icon slot="icon" name="shield" color="#2884EB"></yd-icon>
-                    <span slot="text">客户跟进</span>
+                    <span slot="text">由我发起</span>
                 </yd-grids-item>
             </yd-grids-group>
         </div>
@@ -35,8 +33,8 @@
                 }
             },
             methods: {
-                toSartRecord: function () {
-                    location.href = vpath + '/sart'
+                toFlows: function (type) {
+                    location.href = vpath + '/flows?type=' + type
                 },
                 toMemberList: function () {
                     location.href = vpath + '/memberlist'
@@ -45,7 +43,7 @@
                     location.href = vpath + '/memberlogs'
                 },
             }, mounted() {
-                document.title = '有喜健康钉钉助手'
+                document.title = '会议助手'
             }
         })
         router = new VueRouter({

@@ -28,12 +28,25 @@
                         </el-form>
                     </template>
                 </el-table-column>
-                <el-table-column align="left" label="标题" property="title"></el-table-column>
-                <el-table-column width="168" align="center" label="申报时间" property="create"></el-table-column>
-                <el-table-column width="168" align="right">
+                <el-table-column width="90" align="center" label="流程状态">
                     <template scope="scope">
-                        <el-button size="mini" type="primary" @@click="toEdit(scope.row.id)">编辑</el-button>
-                        <el-button size="mini" type="info" @@click="toDel(scope.row.id)">删除</el-button>
+                        <el-tag size="mini" type="warning" v-if="scope.row.state < 0">暂未提交</el-tag>
+                        <el-tag size="mini" type="primary" v-else-if="scope.row.state==2">审批通过</el-tag>
+                        <el-tag size="mini" type="danger" v-else-if="scope.row.state==3">审批被拒</el-tag>
+                        <el-tag size="mini" type="success" v-else>等待审批</el-tag>
+                    </template>
+                </el-table-column>
+                <el-table-column align="left" label="议题名称" property="title"></el-table-column>
+                <el-table-column width="168" align="center" label="申报部门" property="department"></el-table-column>
+                <el-table-column width="168" align="center" label="录入时间" property="create"></el-table-column>
+                <el-table-column width="210" align="center">
+                    <template scope="scope">
+                        <el-button v-if="scope.row.flow" size="mini" type="success" icon="el-icon-view" @@click="toEdit(scope.row.id)">查看审批详情</el-button>
+                        <template v-else>
+                            <el-button size="mini" type="warning" @@click="toApply(scope.row.id)">提交审批</el-button>
+                            <el-button size="mini" type="primary" @@click="toEdit(scope.row.id)">编辑</el-button>
+                            <el-button size="mini" type="info" @@click="toDel(scope.row.id)">删除</el-button>
+                        </template>
                     </template>
                 </el-table-column>
             </el-table>
@@ -63,18 +76,22 @@
                             <font v-if="form.participantnames">{{form.participantnames}}</font><font v-else style="color:#999999">点击选择</font>
                         </div>
                     </el-form-item>
-                    <el-form-item label="预计时长">
-                        <el-input v-model="form.duration" style="width:80px"></el-input> 分钟
+                    <el-form-item label="申报部门">
+                        <el-select v-model="form.department" filterable allow-create>
+                            <el-option v-for="item in departments" :key="item.id" :value="item.name" :label="item.name"></el-option>
+                        </el-select>
+                        &nbsp;&nbsp;&nbsp;&nbsp;预计时长：<el-input v-model="form.duration" style="width:80px"></el-input> 分钟
                     </el-form-item>
                     <el-form-item>
-                        <el-button size="small" icon="el-icon-check" type="primary" v-on:click="doSubmit">保存并发起申报</el-button>
-                        <el-button size="small" icon="el-icon-check" type="primary" v-on:click="doSubmit">保存</el-button>
+                        <el-button size="small" icon="el-icon-finished" type="primary" v-on:click="doSubmit('apply')">保存并提交审批</el-button>
+                        <el-button size="small" icon="el-icon-check" type="primary" v-on:click="doSubmit('save')">仅保存</el-button>
                         <el-button size="small" icon="el-icon-close" v-on:click="close">取消</el-button>
                     </el-form-item>
                 </el-form>
             </div>
         </div>
         <ding-contact ref="contact" v-on:change="contactChange"></ding-contact>
+        <ding-select ref="select" v-on:change="dingSelectChange" title="请选择执行人员"></ding-select>
     </div>
 </template>
 }
@@ -83,7 +100,7 @@
 <script type="text/javascript">
     let id =0
     var vpath = "/@ViewBag.Action";
-    var form = { id: '', title: '', content: '', files: '', duration: '', participant: '', participantnames: '' }
+    var form = { id: '', title: '', content: '', files: '', duration: '', department: '', participant: '', participantnames: '' }
     var appMain = Vue.extend({
         template: '#app-main',
         data: function () {
@@ -91,6 +108,7 @@
             ds.form = {}
             ds.files = []
             ds.times = []
+            ds.departments = []
             ds.pickerOptions = {
                 shortcuts: [
                 { text: '昨天', onClick(picker) { picker.$emit('pick', [new Date('@ViewBag.Yeserday'), new Date('@ViewBag.Yeserday')]) } },
@@ -103,6 +121,7 @@
                 { text: '上年度', onClick(picker) { picker.$emit('pick', [new Date('@ViewBag.PrevYearStart'), new Date('@ViewBag.PrevYearEnd')]) } }]
             }
             for (var i in form) { ds.form[i] = form[i] };
+            ds.tempid = '';
             return ds
         },
         methods: {
@@ -135,10 +154,21 @@
                 this.form.participantnames = names
                 this.form.participant = select.join()
             },
+            dingSelectChange(val) {
+                this.doApply(val.map(i => i.value).join())
+            },
+            loadDepartment() {
+                if (this.departments.length === 0) {
+                    asyncGet('/dingtalk/departments').then(res => {
+                        this.departments = res;
+                    })
+                }
+            },
             toAdd() {
                 let t = this
                 t.mask = true
                 t.files = []
+                t.loadDepartment()
                 for (var i in form) { t.form[i] = form[i] };
             },
             toDel(id) {
@@ -160,6 +190,7 @@
                 let t = this
                 t.mask = true
                 t.files = []
+                t.loadDepartment()
                 for (var i in form) { t.form[i] = form[i] };
                 post(location.pathname + '?do=get', {id:id}).then(res => {
                     if (res.success) {
@@ -171,7 +202,32 @@
                     }
                 })
             },
-            doSubmit: function () {
+            toApply(id) {
+                let t = this;
+                t.tempid = id;
+                Vue.prototype.$confirm('您正在将当前议题提交审批, 是否继续?', '提示', {
+                    confirmButtonText: '确定',
+                    cancelButtonText: '取消',
+                    type: 'warning'
+                }).then(() => {
+                    t.doApply()
+                }).catch(() => {
+                    Vue.prototype.$message({ type: 'info', message: '操作已取消' })
+                })
+            },
+            doApply(userids) {
+                post(location.pathname + '?do=apply', { id: this.tempid, userids: userids }).then(res => {
+                    if (res.success) {
+                        this.pager()
+                        Vue.prototype.$message({ type: res.success ? 'success' : 'error', message: res.message })
+                    } else if (res.message == 'select') {
+                        this.$refs.select.show()
+                    } else {
+                        Vue.prototype.$message({ type: res.success ? 'success' : 'error', message: res.message })
+                    }
+                })
+            },
+            doSubmit: function (to) {
                 let t = this
                 let files = [];
                 for (let i = 0; i < t.files.length; i++) {
@@ -183,11 +239,12 @@
                     }
                 }
                 t.form.files = JSON.stringify(files);
+                t.form.to = to;;
                 post(location.pathname + '?do=set', t.form).then(res => {
                     Vue.prototype.$message({ type: res.success ? 'success' : 'error', message: res.message })
                     if (res.success) {
                         t.mask = false
-                        t.refresh()
+                        t.pager()
                     }
                 })
             },

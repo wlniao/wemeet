@@ -75,7 +75,7 @@ Vue.prototype.to = (page) => {
 	}
 };
 Vue.prototype.api = (function () {
-	let o = axios.create({ baseURL: '', withCredentials: false, timeout: 20000 });
+	let o = axios.create({ baseURL: '', withCredentials: true, timeout: 20000 });
 	o.interceptors.request.use(function (res) {
 		// 处理请求拦截
 		if (localStorage.sessionkey) {

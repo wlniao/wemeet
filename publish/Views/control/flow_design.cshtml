@@ -2,31 +2,65 @@
 <template id="app-main">
     <div class="wln-layout">
         <div id="flowPanel"></div>
-
-        <div class="wln-mask-layout" v-if="mask.node" v-on:click="close">
+        <div class="wln-mask-layout" v-if="node.mask" v-on:click="close">
             <div class="wln-mask-form" style="width:500px;" v-on:click.stop="empty">
                 <div class="wln-title">流程设置</div>
                 <el-form label-width="120px">
                     <el-form-item label="流程名称">
-                        <el-input v-model="node.name" placeholder="必填" style="width:240px"></el-input>
+                        <el-input v-model="node.name" placeholder="必填" style="width:250px"></el-input>
+                    </el-form-item>
+                    <el-form-item label="驳回方式">
+                        <el-select v-model="node.reject" v-on:change="changeMode" style="width:250px">
+                            <el-option value="3" label="不通过（直接终止审批）"></el-option>
+                            <el-option value="1" label="开始处（编辑后再提交）"></el-option>
+                            <el-option value="0" label="前一步"></el-option>
+                            <el-option value="2" label="某一步" disabled></el-option>
+                        </el-select>
                     </el-form-item>
                     <el-form-item label="审批方式">
-                        <el-select v-model="node.mode" style="width:240px">
+                        <el-select v-model="node.mode" v-on:change="changeMode" style="width:140px">
                             <el-option value="appoint" label="指定成员"></el-option>
                             <el-option value="director" label="主管"></el-option>
-                            <el-option value="role" label="角色"></el-option>
+                            <el-option value="role" label="角色" disabled></el-option>
                             <el-option value="select" label="发起人自选"></el-option>
                             <el-option value="self" label="发起人自己"></el-option>
                         </el-select>
-                        <div v-if="node.mode == 'appoint'" style="margin-top:20px">
-                            <el-cascader ref="appoint" :show-all-levels="false" :options="tree" :model="appoint.select" :loading="appoint.loading" :props="appoint.props" style="width:240px"></el-cascader>
+                        <el-button icon="el-icon-thumb" type="primary" v-on:click="dingSelectShow" v-if="node.mode == 'appoint'">选择人员</el-button>
+                    </el-form-item>
+                    <el-form-item label=" " v-loading="loading">
+                        <div v-if="node.mode == 'appoint'" style="width:270px">
+                            <ding-select ref="select" :data="appoint.select" v-on:change="dingSelectChange" v-if="node.mode == 'appoint'"></ding-select>
                         </div>
-                        <div v-if="node.mode == 'self'">
+                        <div v-if="node.mode == 'select'">
+                            <el-select v-model="select.type" style="width:140px">
+                                <el-option value="one" label="自选一个人"></el-option>
+                                <el-option value="more" label="自选多个人"></el-option>
+                            </el-select>
+                        </div>
+                        <div v-if="(node.mode == 'appoint' && appoint.select.length > 1) || (node.mode == 'select' && select.type == 'more')">
+                            <el-radio v-model="node.confluence" label="all">会签</el-radio>
+                            <el-radio v-model="node.confluence" label="one">或签</el-radio>
+                        </div>
+                        <div v-if="node.mode == 'self'" style="color:#9E9E9E;line-height:20px;margin-top:-8px;">
                             发起人自己将作为审批人处理此流程
                         </div>
                     </el-form-item>
                     <el-form-item>
-                        <el-button size="small" icon="el-icon-check" type="primary" v-on:click="setNode">提交</el-button>
+                        <el-button size="small" icon="el-icon-check" type="primary" v-on:click="setNode">确定</el-button>
+                        <el-button size="small" icon="el-icon-close" v-on:click="close">取消</el-button>
+                    </el-form-item>
+                </el-form>
+            </div>
+        </div>
+        <div class="wln-mask-layout" v-if="round.mask" v-on:click="close">
+            <div class="wln-mask-form" style="width:500px;" v-on:click.stop="empty">
+                <div class="wln-title">{{round.title}}</div>
+                <el-form label-width="120px">
+                    <el-form-item label="节点名称">
+                        <el-input v-model="round.name" placeholder="必填" style="width:250px"></el-input>
+                    </el-form-item>
+                    <el-form-item>
+                        <el-button size="small" icon="el-icon-check" type="primary" v-on:click="setRound">确定</el-button>
                         <el-button size="small" icon="el-icon-close" v-on:click="close">取消</el-button>
                     </el-form-item>
                 </el-form>
@@ -41,6 +75,7 @@
 <script src="https://cdn.bootcss.com/jquery/3.4.1/jquery.min.js"></script>
 <script src="/flow/GooFunc.js"></script>
 <script src="/flow/GooFlow.js"></script>
+<script src="/js/dingContact.js"></script>
 <style>
     .GooFlow .item_mix {
         color: #000000;
@@ -71,57 +106,31 @@
         template: '#app-main',
         data: function () {
             ds.tree = []
-            ds.mask = { node: false }
-            ds.node = { id: 0, name: '', mode: '', staff: '', names: '' }
+            ds.node = { id: 0, mask: false, name: '', reject: '', mode: '', staff: '', names: '', confluence: '' }
+            ds.round = { id: 0, mask: false, name: '', title: '流程设置' }
+            ds.loading = false;
+            //指定成员属性
             ds.appoint = {
-                loading: false,
                 select: [],
-                props: {
-                    lazy: true,
-                    multiple: true,
-                    emitPath: false,
-                    lazyLoad(node, resolve) {
-                        if (node.children && node.children.length > 0) {
-                            resolve([]);
-                        } else if (node.value) {
-                            asyncGet('/dingtalk/contact?dept=' + node.value).then(res => {
-                                resolve(res.tree);
-                            });
-                        }
-                    }
-                }
+                staff: '',
+                names: '',
+                confluence: 'all'
+            }
+            //自选成员属性
+            ds.select = {
+                type: 'one',
+                range: '',   //自选范围
+                staff: '',
+                names: '',
+                confluence: 'all'
             }
             return ds
         },
         methods: {
             empty() { },
             close() {
-                this.mask.node = false
-            },
-            setData(key, json, type) {
-                let obj = flowPanel.exportData();
-                if (type == 'line' && obj.lines[key]) {
-
-                } else if (obj.nodes[key]) {
-                    for (var i in json) {
-                        obj.nodes[key][i] = json[i]
-                    }
-                }
-                let str = JSON.stringify(obj)
-                flowPanel.clearData()
-                flowPanel.loadData(JSON.parse(str))
-            },
-            setNode() {
-                let t = this
-                if (t.node.mode == 'appoint') {
-                    let nodes = t.$refs.appoint.getCheckedNodes();
-                    nodes = nodes.sort((a, b) => a.path.join() - b.path.join()).sort((a, b) => a.path.length - b.path.length);
-
-                    t.node.staff = nodes.map(i => i.path.join('/')).join();
-                    t.node.names = nodes.map(i => i.pathLabels[i.pathLabels.length - 1]).join();
-                }
-                t.setData(t.node.id, t.node);
-                t.close()
+                this.node.mask = false
+                this.round.mask = false
             },
             load() {
                 flowPanel.clearData()
@@ -145,6 +154,108 @@
                 post(location.pathname + '?do=save', obj).then(res => {
                     Vue.prototype.$message({ type: res.success ? 'success' : 'error', message: res.message })
                 })
+            },
+            setData(key, json, type) {
+                let obj = flowPanel.exportData();
+                if (type == 'line' && obj.lines[key]) {
+
+                } else if (obj.nodes[key]) {
+                    for (var i in json) {
+                        obj.nodes[key][i] = json[i]
+                    }
+                }
+                let str = JSON.stringify(obj)
+                flowPanel.clearData()
+                flowPanel.loadData(JSON.parse(str))
+            },
+            setNode() {
+                let t = this
+                if (!t.node.name) {
+                    return Vue.prototype.$alert('流程名称未填写，请填写')
+                }
+                if (t.node.mode == 'appoint') {
+                    if (t.appoint.select.length > 0) {
+                        t.node.staff = t.appoint.select.map(i => i.value).join();
+                        t.node.names = t.appoint.select.map(i => i.label).join();
+                        t.node.confluence = t.appoint.confluence;
+                    } else {
+                        return Vue.prototype.$alert('所选节点未指定处理人员，请指定')
+                    }
+                } else if (t.node.mode == 'select') {
+                    t.node.staff = t.select.type + ':' + t.select.range
+                    t.node.names = t.select.type == 'more' ? '自选多个人' : '自选一个人';
+                } else if (t.node.mode == 'self') {
+                    t.node.staff = ''
+                    t.node.names = '发起人自己';
+                } else {
+                    return Vue.prototype.$alert('所选审批方式暂未支持，请重新选择')
+                }
+                t.setData(t.node.id, t.node);
+                t.close()
+            },
+            setRound() {
+                let t = this
+                if (!t.round.name) {
+                    return Vue.prototype.$alert('节点名称未填写，请填写')
+                }
+                t.setData(t.round.id, t.round);
+                t.close()
+            },
+            showNode(id, node) {
+                let t = this
+                t.node.id = id;
+                t.node.mask = true
+                t.node.name = node.name || ''
+                t.node.reject = node.reject || '3'
+                t.node.mode = node.mode || 'appoint'
+                t.node.confluence = node.confluence || 'all'
+                t.node.staff = node.staff || ''
+                t.node.names = node.names || ''
+
+                t.appoint.staff = ''
+                t.appoint.names = ''
+                t.appoint.confluence = ''
+
+                t.select.staff = ''
+                t.select.names = ''
+                t.select.confluence = ''
+
+                if (t.node.mode == 'appoint') {
+                    t.appoint.staff = t.node.staff
+                    t.appoint.names = t.node.names
+                    t.appoint.confluence = t.node.confluence
+                } else if (t.node.mode == 'select') {
+                    t.select.staff = t.node.staff
+                    t.select.names = t.node.names
+                    t.select.confluence = t.node.confluence
+                }
+                t.changeMode()
+            },
+            changeMode() {
+                let t = this
+                if (t.node.mode == 'appoint') {
+                    t.appoint.select = []
+                    t.node.confluence = t.appoint.confluence || 'all'
+                    let names = t.appoint.names.split(',');
+                    let values = t.appoint.staff.split(',');
+                    if (values.length == names.length && t.appoint.staff.length > 0 && t.appoint.names.length > 0) {
+                        for (var i = 0; i < values.length; i++) {
+                            t.appoint.select.push({ value: values[i], label: names[i] })
+                        }
+                    }
+                } else if (t.node.mode == 'select') {
+                    t.node.confluence = t.select.confluence || 'all'
+                    t.select.type = t.select.staff.indexOf('more:') < 0 ? 'one' : 'more'
+                    t.select.range = t.select.staff.substring(t.node.staff.indexOf(':') + 1);
+                } else {
+                    t.loading = false;
+                }
+            },
+            dingSelectShow() {
+                this.$refs.select.show()
+            },
+            dingSelectChange(val) {
+                this.appoint.select = val
             }
         },
         mounted() {
@@ -178,33 +289,18 @@
                 group: "组织划分框编辑开"
             });
             flowPanel.onItemFocus = (id, type) => {
-                let t = this
                 let obj = flowPanel.exportData()
                 let node = obj.nodes[id]
                 if (type === 'node' && node) {
-                    t.mask.node = true
-                    t.node.id = id;
-                    t.node.name = node.name || ''
-                    t.node.mode = node.mode || 'appoint'
-                    t.node.staff = node.staff || ''
-                    t.node.names = node.names || ''
-                    if (t.node.mode == 'appoint') {
-                        t.appoint.select = []
-                        t.appoint.loading = true
-                        let values = t.node.staff.split(',');
-                        let ids = values.filter(i => i.indexOf('userid_') > 0).map(i => i.split('/')).map(i => i[i.length - 2]);
-                        get('/dingtalk/contact?depts=' + ids.join()).then(res => {
-                            if (res.success) {
-                                t.tree = res.tree;
-                                //t.appoint.select = values.map(i => i.split('/'))
-                                t.appoint.select = values.filter(i => i.indexOf('userid_') > 0).map(i => i.split('/')).map(i => i[i.length - 1])
-                            } else {
-                                t.mask.node = false
-                            }
-                        }).catch(res => { });
+                    if (node.type.indexOf('round') >= 0) {
+                        t.round.id = id;
+                        t.round.mask = true
+                        t.round.name = node.name || ''
+                        t.round.title = node.type.indexOf('end') < 0 ? "流程开始" : "流程结束"
+                    } else {
+                        this.showNode(id, node);
                     }
                 }
-
                 return true
             }
             flowPanel.onBtnBackClick = (() => { location.href = 'flow_scheme' })

@@ -70,8 +70,11 @@
                             <font v-if="form.participantnames">{{form.participantnames}}</font><font v-else style="color:#999999">点击选择</font>
                         </div>
                     </el-form-item>
-                    <el-form-item label="预计时长">
-                        <el-input v-model="form.duration" style="width:80px"></el-input> 分钟
+                    <el-form-item label="申报部门">
+                        <el-select v-model="form.department" filterable allow-create>
+                            <el-option v-for="item in departments" :key="item.id" :value="item.name" :label="item.name"></el-option>
+                        </el-select>
+                        &nbsp;&nbsp;&nbsp;&nbsp;预计时长：<el-input v-model="form.duration" style="width:80px"></el-input> 分钟
                     </el-form-item>
                     <el-form-item>
                         <el-button size="small" icon="el-icon-check" type="primary" v-on:click="doSubmit">保存</el-button>
@@ -89,7 +92,7 @@
 <script type="text/javascript">
     let id =0
     var vpath = "/@ViewBag.Action";
-    var form = { id: '', title: '', content: '', files: '', duration: '', participant: '', participantnames: '' }
+    var form = { id: '', title: '', content: '', files: '', duration: '', department: '', participant: '', participantnames: '' }
     var appMain = Vue.extend({
         template: '#app-main',
         data: function () {
@@ -99,6 +102,7 @@
             ds.times = []
             ds.active = 1;
             ds.options = [{ id: 1, name: '待召开' }, { id: 2, name: '已召开' }, { id: 3, name: '申报中' }]
+            ds.departments = []
             ds.pickerOptions = {
                 shortcuts: [
                 { text: '昨天', onClick(picker) { picker.$emit('pick', [new Date('@ViewBag.Yeserday'), new Date('@ViewBag.Yeserday')]) } },
@@ -148,10 +152,18 @@
                 this.form.participantnames = names
                 this.form.participant = select.join()
             },
+            loadDepartment() {
+                if (this.departments.length === 0) {
+                    asyncGet('/dingtalk/departments').then(res => {
+                        this.departments = res;
+                    })
+                }
+            },
             toAdd() {
                 let t = this
                 t.mask = true
                 t.files = []
+                t.loadDepartment()
                 for (var i in form) { t.form[i] = form[i] };
             },
             toDel(id) {
@@ -173,6 +185,7 @@
                 let t = this
                 t.mask = true
                 t.files = []
+                t.loadDepartment()
                 for (var i in form) { t.form[i] = form[i] };
                 post(location.pathname + '?do=get', {id:id}).then(res => {
                     if (res.success) {

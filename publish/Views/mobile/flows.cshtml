@@ -1,0 +1,148 @@
+﻿@{ Layout = "_master.cshtml";}
+@section head{
+    <style>
+        .flow-item {
+            width: 100%;
+            min-height: 1.5rem;
+            display: table;
+            position: relative;
+            background: #ffffff;
+            margin-top: 0.1rem;
+        }
+        .flow-item > div {
+            padding:0.2rem 0;
+        }
+        .flow-item-time {
+            top: 0.2rem;
+            right: 0;
+            color: #9c9c9c;
+            position: absolute;
+            padding-right: 0.2rem;
+        }
+        .flow-item-left {
+            width: 1.2rem;
+            display: table-cell;
+            text-align: center;
+            vertical-align: top;
+        }
+        .flow-item-left img {
+            width: 0.7rem;
+            border-radius:50%;
+        }
+        .flow-item-main {
+            display: table-cell;
+            vertical-align: top;
+        }
+        .flow-item-title {
+            font-size: 0.3rem;
+            padding-right: 1rem;
+        }
+        .flow-item-content {
+            color: #9c9c9c;
+            font-size: 0.24rem;
+            padding-right: 1rem;
+        }
+
+        .flow-item-status {
+            color: #9c9c9c;
+            font-size: 0.24rem;
+            margin-top:0.05rem;
+        }
+    </style>
+}
+@section body{
+    <template id="main">
+        <div>
+            <yd-tab v-model="tab">
+                <yd-tab-panel label="待我处理"></yd-tab-panel>
+                <yd-tab-panel label="我已处理"></yd-tab-panel>
+                <yd-tab-panel label="我发起的"></yd-tab-panel>
+            </yd-tab>
+            <div class="wlna-list">
+                <yd-infinitescroll :callback="loadList" ref="listScroll">
+                    <template slot="list">
+                        <div class="flow-item" v-on:click="view(item.id)" v-for="item in list">
+                            <span class="flow-item-time">{{item.time}}</span>
+                            <div class="flow-item-left"><img :src="item.avatar" /></div>
+                            <div class="flow-item-main">
+                                <div class="flow-item-title">{{item.title}}</div>
+                                <div class="flow-item-content" v-if="item.description.length == 0">暂无说明</div>
+                                <div class="flow-item-content" v-else v-for="text in item.description">{{text}}</div>
+                                <div class="flow-item-status" :style="{color:item.color}">{{item.status}}</div>
+                            </div>
+                        </div>
+                        <div v-if="list.length == 0" style="text-align:center; padding: 1rem; color:#c9c9c9">
+                            <font v-if="tab === 1">暂无已处理完成的业务</font>
+                            <font v-else-if="tab === 2">暂无已自己发起的业务</font>
+                            <font v-else>暂无等待我处理的业务</font>
+                        </div>
+                    </template>
+                    <span slot="doneTip">到底啦，暂无更多数据~~</span>
+                </yd-infinitescroll>
+            </div>
+        </div>
+    </template>
+}
+@section foot{
+    <script type="text/javascript">
+        vpath = "/@ViewBag.Controller";
+        vaction = "/@ViewBag.Action";
+        appMain = Vue.extend({
+            template: '#main',
+            data: function () {
+                return {
+                    tab: 0,
+                    page: 0,
+                    list: []
+                }
+            },
+            watch: {
+                tab() {
+                    this.loadStart()
+                }
+            },
+            methods: {
+                loadList() {
+                    let t = this
+                    t.page++;
+                    t.api.post(location.pathname + '?do=pager', { tab: t.tab, page: t.page }).then(res => {
+                        Vue.prototype.hideLoading();
+                        t.list = t.list.concat(res.rows)
+                        if (res.page > 1) {
+                            if (res.total > t.list.length) {
+                                t.$refs.listScroll.$emit('ydui.infinitescroll.finishLoad')
+                            } else if (t.list.length > 0) {
+                                t.$refs.listScroll.$emit('ydui.infinitescroll.loadedDone')
+                            }
+                        }
+                    }, res => { })
+                },
+                loadStart() {
+                    Vue.prototype.showLoading();
+                    this.$refs.listScroll.$emit('ydui.infinitescroll.reInit');
+                    this.total = 0
+                    this.page = 0
+                    this.list = []
+                    this.loadList()
+                },
+                view(id) {
+                    location.href = vpath + '/flow/' + id;
+                }
+            },
+            mounted() {
+                document.title = '议题申报'
+                if (this.$route.query.type) {
+                    this.tab = parseInt(this.$route.query.type)
+                }
+                if (this.tab == 0) {
+                    this.loadList()
+                }
+            }
+        })
+        router = new VueRouter({
+            mode: 'history', routes: [
+                { path: vpath + vaction, component: appMain }
+            ]
+        })
+    </script>
+}

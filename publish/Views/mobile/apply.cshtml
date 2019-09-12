@@ -1,0 +1,85 @@
+﻿@{ Layout = "_master.cshtml";}
+@section head{
+    <style>
+        .dingtalk::before {
+            height: 0px !important;
+        }
+        .yd-preview-item > :last-child {
+            color: #111111;
+            text-align: left !important;
+        }
+    </style>
+}
+@section body{
+    <template id="main">
+        <div>
+            <yd-preview :buttons="btns">
+                <div style="padding-top:0.3rem"></div>
+                <yd-preview-item>
+                    <div slot="left">申报时间</div>
+                    <div slot="right">{{body.create}}</div>
+                </yd-preview-item>
+                <yd-preview-item>
+                    <div slot="left">议题名称</div>
+                    <div slot="right">{{body.title}}</div>
+                </yd-preview-item>
+                <yd-preview-item>
+                    <div slot="left">审议内容</div>
+                    <div slot="right">{{body.content}}</div>
+                </yd-preview-item>
+                <yd-preview-item>
+                    <div slot="left">列席成员</div>
+                    <div slot="right">{{body.participantnames}}</div>
+                </yd-preview-item>
+                <yd-preview-item>
+                    <div slot="left">申报部门</div>
+                    <div slot="right">{{body.department}}</div>
+                </yd-preview-item>
+                <yd-preview-item v-if="body.duration>0">
+                    <div slot="left">预计时长</div>
+                    <div slot="right">{{body.duration}}分钟</div>
+                </yd-preview-item>
+            </yd-preview>
+        </div>
+    </template>
+}
+@section foot{
+    <script type="text/javascript">
+        var appMain = Vue.extend({
+            template: '#main',
+            data: function () {
+                return {
+                    body: {
+                        id: '',
+                        title: '',
+                        content: '',
+                        department: '',
+                        participantnames: '',
+                        duration: 0,
+                        create: '',
+                        success: true
+                    },
+                    btns:[]
+                }
+            },
+            methods: {
+                toFile: function (path) {
+                    location.href = vpath + '/flows?type=' + path
+                },
+            }, mounted() {
+                let t = this
+                t.api.post(location.pathname + '?do=body', { id: t.$route.query.id }).then(res => {
+                    if (res.success) {
+                        for (var i in res) { t.body[i] = res[i] }
+                        document.title = res.title
+                    }
+                }, res => { })
+            }
+        })
+        router = new VueRouter({
+            mode: 'history', routes: [
+                { path: location.pathname, component: appMain }
+            ]
+        })
+    </script>
+}
