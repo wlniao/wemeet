@@ -62,7 +62,7 @@
                     </el-form-item>
                     <el-form-item>
                         <div style="border-radius:4px;border:1px solid #DCDFE6;width:497px;height:320px;">
-                            <el-table :data="form.topiclist" max-height="320" empty-text="暂未选择议题，请先选择议题">
+                            <el-table :data="form.topiclist" max-height="320" empty-text="暂未选择议题，请选择">
                                 <el-table-column label="顺序" width="80" align="center">
                                     <template slot-scope="scope">
                                         <input type="text" v-model="scope.row.sort" v-on:change="changeSort" class="el-input__inner" style="width:50px;text-align:center;height:30px;line-height:30px;">
