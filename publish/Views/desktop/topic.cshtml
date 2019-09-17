@@ -21,7 +21,7 @@
                                     <div class="wln-expand-title">议题内容</div>
                                     <div class="wln-expand-remark"><font v-if="scope.row.content">{{scope.row.content}}</font><font v-else style="color:#999999">未填写议题内容</font></div>
                                     <div class="wln-expand-title">参会成员</div>
-                                    <div class="wln-expand-remark"><font v-if="scope.row.participantnames">{{scope.row.participantnames}}</font><font v-else style="color:#999999">未选择参会成员</font></div>
+                                    <div class="wln-expand-remark"><font v-if="scope.row.participant">{{scope.row.participant}}</font><font v-else style="color:#999999">未选择参会成员</font></div>
                                     <div class="wln-expand-title">议题资料</div>
                                     <div class="wln-expand-remark">
                                         <font v-if="scope.row.files.length == 0" style="color:#999999">未上传议题资料</font>
@@ -66,9 +66,10 @@
                         </el-upload>
                     </el-form-item>
                     <el-form-item label="列席成员">
-                        <div v-on:click="contactShow" style="width:500px;min-height:60px;border:1px solid #DCDFE6;border-radius:4px;padding:5px 15px;line-height:1.5;box-sizing:border-box;background:#fdfdfd">
-                            <font v-if="form.participantnames">{{form.participantnames}}</font><font v-else style="color:#999999">点击选择</font>
+                        <div style="width:500px;margin-bottom:9px">
+                            <ding-contact ref="contact" :data="participants" v-on:change="contactChange" title="选择内部成员" btn-text="选择内部成员"></ding-contact>
                         </div>
+                        <el-input type="textarea" v-model="form.participantothers" rows="2" style="width:500px" placeholder="其它成员、部门（请直接填写）"></el-input>
                     </el-form-item>
                     <el-form-item label="申报部门">
                         <el-select v-model="form.department" filterable allow-create>
@@ -83,7 +84,6 @@
                 </el-form>
             </div>
         </div>
-        <ding-contact ref="contact" v-on:change="contactChange"></ding-contact>
     </div>
 </template>
 }
@@ -92,7 +92,7 @@
 <script type="text/javascript">
     let id =0
     var vpath = "/@ViewBag.Action";
-    var form = { id: '', title: '', content: '', files: '', duration: '', department: '', participant: '', participantnames: '' }
+    var form = { id: '', title: '', content: '', files: '', duration: '', department: '', participant: '', participantnames: '', participantothers: '' }
     var appMain = Vue.extend({
         template: '#app-main',
         data: function () {
@@ -100,6 +100,7 @@
             ds.form = {}
             ds.files = []
             ds.times = []
+            ds.participants = []
             ds.active = 1;
             ds.options = [{ id: 1, name: '待召开' }, { id: 2, name: '已召开' }, { id: 3, name: '申报中' }]
             ds.departments = []
@@ -143,14 +144,9 @@
             },
             close() {
                 this.mask = false
-                this.option(1)
             },
-            contactShow() {
-                this.$refs.contact.show(this.form.participant.split(','), this.form.names)
-            },
-            contactChange(select, names) {
-                this.form.participantnames = names
-                this.form.participant = select.join()
+            contactChange(val) {
+                this.participants = val
             },
             loadDepartment() {
                 if (this.departments.length === 0) {
@@ -163,6 +159,7 @@
                 let t = this
                 t.mask = true
                 t.files = []
+                t.participants = []
                 t.loadDepartment()
                 for (var i in form) { t.form[i] = form[i] };
             },
@@ -185,6 +182,7 @@
                 let t = this
                 t.mask = true
                 t.files = []
+                t.participants = []
                 t.loadDepartment()
                 for (var i in form) { t.form[i] = form[i] };
                 post(location.pathname + '?do=get', {id:id}).then(res => {
@@ -192,6 +190,14 @@
                         t.mask = true
                         t.files = JSON.parse(res.files)
                         for (var i in form) { t.form[i] = res[i] };
+
+                        let _value = t.form.participant.split(',');
+                        let _names = t.form.participantnames.split(',');
+                        if (_value.length == _names.length) {
+                            for (var i = 0; i < _value.length; i++) {
+                                t.participants.push({ value: _value[i], label: _names[i] })
+                            }
+                        }
                     } else {
                         Vue.prototype.$message({ type: res.success ? 'success' : 'error', message: res.message })
                     }
@@ -209,6 +215,8 @@
                     }
                 }
                 t.form.files = JSON.stringify(files);
+                t.form.participant = t.participants.map(i => i.value).join();
+                t.form.participantnames = t.participants.map(i => i.label).join();
                 post(location.pathname + '?do=set', t.form).then(res => {
                     Vue.prototype.$message({ type: res.success ? 'success' : 'error', message: res.message })
                     if (res.success) {

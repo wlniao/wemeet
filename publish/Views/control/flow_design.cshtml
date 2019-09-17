@@ -29,7 +29,7 @@
                     </el-form-item>
                     <el-form-item label=" " v-loading="loading">
                         <div v-if="node.mode == 'appoint'" style="width:270px">
-                            <ding-select ref="select" :data="appoint.select" v-on:change="dingSelectChange" v-if="node.mode == 'appoint'"></ding-select>
+                            <ding-contact ref="contact" :data="appoint.select" v-on:change="dingSelectChange" v-if="node.mode == 'appoint'"></ding-contact>
                         </div>
                         <div v-if="node.mode == 'select'">
                             <el-select v-model="select.type" style="width:140px">
@@ -252,7 +252,7 @@
                 }
             },
             dingSelectShow() {
-                this.$refs.select.show()
+                this.$refs.contact.show()
             },
             dingSelectChange(val) {
                 this.appoint.select = val

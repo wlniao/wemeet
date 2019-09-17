@@ -16,7 +16,7 @@
                                 <div class="wln-expand-title">议题内容</div>
                                 <div class="wln-expand-remark"><font v-if="scope.row.content">{{scope.row.content}}</font><font v-else style="color:#999999">未填写议题内容</font></div>
                                 <div class="wln-expand-title">参会成员</div>
-                                <div class="wln-expand-remark"><font v-if="scope.row.participantnames">{{scope.row.participantnames}}</font><font v-else style="color:#999999">未选择参会成员</font></div>
+                                <div class="wln-expand-remark"><font v-if="scope.row.participant">{{scope.row.participant}}</font><font v-else style="color:#999999">未选择参会成员</font></div>
                                 <div class="wln-expand-title">议题资料</div>
                                 <div class="wln-expand-remark">
                                     <font v-if="scope.row.files.length == 0" style="color:#999999">未上传议题资料</font>
@@ -53,7 +53,7 @@
             <el-pagination @@current-change="pageset" layout="total, prev, pager, next, jumper" :current-page="page" :page-size="size" :total="total"></el-pagination>
         </div>
         <div class="wln-mask-layout" v-if="mask">
-            <div class="wln-mask-body" style="width:800px;margin-top:5%;">
+            <div class="wln-mask-body" style="width:700px;margin-top:5%;">
                 <div class="wln-mask-head">议题内容</div>
                 <el-form ref="form" v-model="form" label-width="120px">
                     <el-form-item label="议题名称">
@@ -72,9 +72,10 @@
                         </el-upload>
                     </el-form-item>
                     <el-form-item label="列席成员">
-                        <div v-on:click="contactShow" style="width:500px;min-height:60px;border:1px solid #DCDFE6;border-radius:4px;padding:5px 15px;line-height:1.5;box-sizing:border-box;background:#fdfdfd">
-                            <font v-if="form.participantnames">{{form.participantnames}}</font><font v-else style="color:#999999">点击选择</font>
+                        <div style="width:500px;margin-bottom:9px">
+                            <ding-contact ref="contact" :data="participants" v-on:change="contactChange" title="选择内部成员" btn-text="选择内部成员"></ding-contact>
                         </div>
+                        <el-input type="textarea" v-model="form.participantothers" rows="2" style="width:500px" placeholder="其它成员、部门（请直接填写）"></el-input>
                     </el-form-item>
                     <el-form-item label="申报部门">
                         <el-select v-model="form.department" filterable allow-create>
@@ -96,8 +97,7 @@
                 <iframe v-if="view.url" :src="view.url" frameborder="0" scrolling="auto" style="position:absolute;width:100%;height:100%;overflow:auto"></iframe>
             </div>
         </div>
-        <ding-contact ref="contact" v-on:change="contactChange"></ding-contact>
-        <ding-select ref="select" v-on:change="dingSelectChange" title="请选择执行人员"></ding-select>
+        <ding-contact ref="select" v-on:change="dingSelectChange" title="请选择执行人员"></ding-contact>
     </div>
 </template>
 }
@@ -106,7 +106,7 @@
 <script type="text/javascript">
     let id =0
     var vpath = "/@ViewBag.Action";
-    var form = { id: '', title: '', content: '', files: '', duration: '', department: '', participant: '', participantnames: '' }
+    var form = { id: '', title: '', content: '', files: '', duration: '', department: '', participant: '', participantnames: '', participantothers: '' }
     var appMain = Vue.extend({
         template: '#app-main',
         data: function () {
@@ -115,6 +115,7 @@
             ds.view = { mask: false,url:'' }
             ds.files = []
             ds.times = []
+            ds.participants = []
             ds.departments = []
             ds.pickerOptions = {
                 shortcuts: [
@@ -155,12 +156,8 @@
                 this.mask = false
                 this.view.mask = false
             },
-            contactShow() {
-                this.$refs.contact.show(this.form.participant.split(','), this.form.names)
-            },
-            contactChange(select, names) {
-                this.form.participantnames = names
-                this.form.participant = select.join()
+            contactChange(val) {
+                this.participants = val
             },
             dingSelectChange(val) {
                 this.doApply(val.map(i => i.value).join())
@@ -176,6 +173,7 @@
                 let t = this
                 t.mask = true
                 t.files = []
+                t.participants = []
                 t.loadDepartment()
                 for (var i in form) { t.form[i] = form[i] };
             },
@@ -198,6 +196,7 @@
                 let t = this
                 t.mask = true
                 t.files = []
+                t.participants = []
                 t.loadDepartment()
                 for (var i in form) { t.form[i] = form[i] };
                 post(location.pathname + '?do=get', {id:id}).then(res => {
@@ -205,6 +204,14 @@
                         t.mask = true
                         t.files = JSON.parse(res.files)
                         for (var i in form) { t.form[i] = res[i] };
+
+                        let _value = t.form.participant.split(',');
+                        let _names = t.form.participantnames.split(',');
+                        if (_value.length == _names.length) {
+                            for (var i = 0; i < _value.length; i++) {
+                                t.participants.push({ value: _value[i], label: _names[i] })
+                            }
+                        }
                     } else {
                         Vue.prototype.$message({ type: res.success ? 'success' : 'error', message: res.message })
                     }
@@ -250,8 +257,10 @@
                         files.push({ name: file.name, url: file.response.url });
                     }
                 }
+                t.form.to = to;
                 t.form.files = JSON.stringify(files);
-                t.form.to = to;;
+                t.form.participant = t.participants.map(i => i.value).join();
+                t.form.participantnames = t.participants.map(i => i.label).join();
                 post(location.pathname + '?do=set', t.form).then(res => {
                     Vue.prototype.$message({ type: res.success ? 'success' : 'error', message: res.message })
                     if (res.success) {
