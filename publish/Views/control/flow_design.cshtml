@@ -148,6 +148,9 @@
             save() {
                 let t = this
                 let obj = flowPanel.exportData()
+                if (t.$route.query.id) {
+                    obj.id = t.$route.query.id
+                }
                 if (t.$route.query.code) {
                     obj.code = t.$route.query.code
                 }

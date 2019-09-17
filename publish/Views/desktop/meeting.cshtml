@@ -138,12 +138,12 @@
                 t.select.checked = []
                 post(location.pathname + '?do=topic', { id: t.form.id }).then(res => {
                     t.select.rows = res;
-                    setTimeout(() => {
-                        for (var i = 0; i < t.form.topiclist.length; i++) {
-                            let row = t.select.rows.filter(o => o.id == t.form.topiclist[i].id)[0]
-                            row && t.$refs.select.toggleRowSelection(row);
+                    for (var i = 0; i < t.form.topiclist.length; i++) {
+                        let row = t.select.rows.filter(o => o.id == t.form.topiclist[i].id)[0];
+                        if (row && row.id) {
+                            t.$refs.select.toggleRowSelection(row)
                         }
-                    }, 500)
+                    }
                 });
             },
             confirmSelect() {
