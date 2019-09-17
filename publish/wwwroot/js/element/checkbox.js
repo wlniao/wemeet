@@ -82,7 +82,7 @@ module.exports =
 /******/
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 78);
+/******/ 	return __webpack_require__(__webpack_require__.s = 98);
 /******/ })
 /************************************************************************/
 /******/ ({
@@ -196,7 +196,7 @@ module.exports = require("element-ui/lib/mixins/emitter");
 
 /***/ }),
 
-/***/ 78:
+/***/ 98:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -219,12 +219,7 @@ var render = function() {
         { "is-bordered": _vm.border },
         { "is-checked": _vm.isChecked }
       ],
-      attrs: {
-        role: "checkbox",
-        "aria-checked": _vm.indeterminate ? "mixed" : _vm.isChecked,
-        "aria-disabled": _vm.isDisabled,
-        id: _vm.id
-      }
+      attrs: { id: _vm.id }
     },
     [
       _c(
@@ -237,7 +232,11 @@ var render = function() {
             "is-indeterminate": _vm.indeterminate,
             "is-focus": _vm.focus
           },
-          attrs: { "aria-checked": "mixed" }
+          attrs: {
+            tabindex: _vm.indeterminate ? 0 : false,
+            role: _vm.indeterminate ? "checkbox" : false,
+            "aria-checked": _vm.indeterminate ? "mixed" : false
+          }
         },
         [
           _c("span", { staticClass: "el-checkbox__inner" }),
@@ -254,7 +253,7 @@ var render = function() {
                 staticClass: "el-checkbox__original",
                 attrs: {
                   type: "checkbox",
-                  "aria-hidden": "true",
+                  "aria-hidden": _vm.indeterminate ? "true" : "false",
                   name: _vm.name,
                   disabled: _vm.isDisabled,
                   "true-value": _vm.trueLabel,
@@ -308,7 +307,7 @@ var render = function() {
                 staticClass: "el-checkbox__original",
                 attrs: {
                   type: "checkbox",
-                  "aria-hidden": "true",
+                  "aria-hidden": _vm.indeterminate ? "true" : "false",
                   disabled: _vm.isDisabled,
                   name: _vm.name
                 },
@@ -376,7 +375,6 @@ var emitter_ = __webpack_require__(4);
 var emitter_default = /*#__PURE__*/__webpack_require__.n(emitter_);
 
 // CONCATENATED MODULE: ./node_modules/babel-loader/lib!./node_modules/vue-loader/lib??vue-loader-options!./packages/checkbox/src/checkbox.vue?vue&type=script&lang=js&
-//
 //
 //
 //

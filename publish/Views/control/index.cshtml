@@ -114,9 +114,10 @@
             el: '#app',
             data: function () {
                 var menus = [];
-                menus.push({ "name": "待办任务", "icon": "/svg/task.svg", "action": "/task" });
+                //menus.push({ "name": "待办任务", "icon": "/svg/task.svg", "action": "/task" });
                 menus.push({ "name": "议题申报", "icon": "/svg/apply.svg", "action": "/apply" });
                 menus.push({ "name": "议题管理", "icon": "/svg/topic.svg", "action": "/topic" });
+                menus.push({ "name": "会议管理", "icon": "/svg/meets.svg", "action": "/meeting" });
                 @if(ViewBag.IsSuper){<text>
                 menus.push({ "name": "流程管理", "icon": "/svg/flows.svg", "action": "/flow_scheme" });
                 menus.push({ "name": "钉钉对接", "icon": "/svg/dingtalk.svg", "action": "/setting" });

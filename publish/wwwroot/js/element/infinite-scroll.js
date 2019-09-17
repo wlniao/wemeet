@@ -82,19 +82,19 @@ module.exports =
 /******/
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 127);
+/******/ 	return __webpack_require__(__webpack_require__.s = 130);
 /******/ })
 /************************************************************************/
 /******/ ({
 
-/***/ 127:
+/***/ 130:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 
 // EXTERNAL MODULE: external "throttle-debounce/debounce"
-var debounce_ = __webpack_require__(14);
+var debounce_ = __webpack_require__(16);
 var debounce_default = /*#__PURE__*/__webpack_require__.n(debounce_);
 
 // EXTERNAL MODULE: external "element-ui/lib/utils/types"
@@ -103,7 +103,7 @@ var types_ = __webpack_require__(19);
 // EXTERNAL MODULE: external "element-ui/lib/utils/dom"
 var dom_ = __webpack_require__(2);
 
-// CONCATENATED MODULE: ./packages/infiniteScroll/src/main.js
+// CONCATENATED MODULE: ./packages/infinite-scroll/src/main.js
 
 
 
@@ -261,7 +261,7 @@ var main_handleScroll = function handleScroll(cb) {
     }
   }
 });
-// CONCATENATED MODULE: ./packages/infiniteScroll/index.js
+// CONCATENATED MODULE: ./packages/infinite-scroll/index.js
 
 
 /* istanbul ignore next */
@@ -269,11 +269,11 @@ main.install = function (Vue) {
   Vue.directive(main.name, main);
 };
 
-/* harmony default export */ var infiniteScroll = __webpack_exports__["default"] = (main);
+/* harmony default export */ var infinite_scroll = __webpack_exports__["default"] = (main);
 
 /***/ }),
 
-/***/ 14:
+/***/ 16:
 /***/ (function(module, exports) {
 
 module.exports = require("throttle-debounce/debounce");

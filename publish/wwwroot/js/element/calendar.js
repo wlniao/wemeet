@@ -82,7 +82,7 @@ module.exports =
 /******/
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 64);
+/******/ 	return __webpack_require__(__webpack_require__.s = 66);
 /******/ })
 /************************************************************************/
 /******/ ({
@@ -196,10 +196,24 @@ module.exports = require("element-ui/lib/utils/date-util");
 
 /***/ }),
 
+/***/ 17:
+/***/ (function(module, exports) {
+
+module.exports = require("element-ui/lib/button");
+
+/***/ }),
+
 /***/ 24:
 /***/ (function(module, exports) {
 
 module.exports = require("element-ui/lib/utils/date");
+
+/***/ }),
+
+/***/ 35:
+/***/ (function(module, exports) {
+
+module.exports = require("element-ui/lib/button-group");
 
 /***/ }),
 
@@ -210,7 +224,7 @@ module.exports = require("element-ui/lib/mixins/locale");
 
 /***/ }),
 
-/***/ 64:
+/***/ 66:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -302,7 +316,11 @@ var render = function() {
           { key: "no-range", staticClass: "el-calendar__body" },
           [
             _c("date-table", {
-              attrs: { date: _vm.date, "selected-day": _vm.realSelectedDay },
+              attrs: {
+                date: _vm.date,
+                "selected-day": _vm.realSelectedDay,
+                "first-day-of-week": _vm.realFirstDayOfWeek
+              },
               on: { pick: _vm.pickDay }
             })
           ],
@@ -318,7 +336,8 @@ var render = function() {
                 date: range[0],
                 "selected-day": _vm.realSelectedDay,
                 range: range,
-                "hide-header": index !== 0
+                "hide-header": index !== 0,
+                "first-day-of-week": _vm.realFirstDayOfWeek
               },
               on: { pick: _vm.pickDay }
             })
@@ -341,6 +360,14 @@ var locale_default = /*#__PURE__*/__webpack_require__.n(locale_);
 var date_ = __webpack_require__(24);
 var date_default = /*#__PURE__*/__webpack_require__.n(date_);
 
+// EXTERNAL MODULE: external "element-ui/lib/button"
+var button_ = __webpack_require__(17);
+var button_default = /*#__PURE__*/__webpack_require__.n(button_);
+
+// EXTERNAL MODULE: external "element-ui/lib/button-group"
+var button_group_ = __webpack_require__(35);
+var button_group_default = /*#__PURE__*/__webpack_require__.n(button_group_);
+
 // EXTERNAL MODULE: external "element-ui/lib/utils/date-util"
 var date_util_ = __webpack_require__(1);
 
@@ -348,8 +375,8 @@ var date_util_ = __webpack_require__(1);
 
 
 
-/* harmony default export */ var date_tablevue_type_script_lang_js_ = ({
 
+/* harmony default export */ var date_tablevue_type_script_lang_js_ = ({
   props: {
     selectedDay: String, // formated date yyyy-MM-dd
     range: {
@@ -363,10 +390,18 @@ var date_util_ = __webpack_require__(1);
       }
     },
     date: Date,
-    hideHeader: Boolean
+    hideHeader: Boolean,
+    firstDayOfWeek: Number
   },
 
   inject: ['elCalendar'],
+
+  data: function data() {
+    return {
+      WEEK_DAYS: Object(date_util_["getI18nSettings"])().dayNames
+    };
+  },
+
 
   methods: {
     toNestedArr: function toNestedArr(days) {
@@ -476,7 +511,8 @@ var date_util_ = __webpack_require__(1);
         var date = this.date;
         var firstDay = Object(date_util_["getFirstDayOfMonth"])(date);
         firstDay = firstDay === 0 ? 7 : firstDay;
-        var prevMonthDays = Object(date_util_["getPrevMonthLastDays"])(date, firstDay - 1).map(function (day) {
+        var firstDayOfWeek = typeof this.firstDayOfWeek === 'number' ? this.firstDayOfWeek : 1;
+        var prevMonthDays = Object(date_util_["getPrevMonthLastDays"])(date, firstDay - firstDayOfWeek).map(function (day) {
           return {
             text: day,
             type: 'prev'
@@ -498,21 +534,26 @@ var date_util_ = __webpack_require__(1);
         days = days.concat(nextMonthDays);
       }
       return this.toNestedArr(days);
+    },
+    weekDays: function weekDays() {
+      var start = this.firstDayOfWeek;
+      var WEEK_DAYS = this.WEEK_DAYS;
+
+
+      if (typeof start !== 'number' || start === 0) {
+        return WEEK_DAYS.slice();
+      } else {
+        return WEEK_DAYS.slice(start).concat(WEEK_DAYS.slice(0, start));
+      }
     }
   },
 
-  data: function data() {
-    var dayNames = Object(date_util_["getI18nSettings"])().dayNames;
-    return {
-      DAYS: dayNames.slice(1).concat(dayNames[0])
-    };
-  },
   render: function render() {
     var _this = this;
 
     var h = arguments[0];
 
-    var thead = this.hideHeader ? null : h('thead', [this.DAYS.map(function (day) {
+    var thead = this.hideHeader ? null : h('thead', [this.weekDays.map(function (day) {
       return h(
         'th',
         { key: day },
@@ -644,6 +685,10 @@ component.options.__file = "packages/calendar/src/date-table.vue"
 //
 //
 //
+//
+//
+
+
 
 
 
@@ -651,6 +696,7 @@ component.options.__file = "packages/calendar/src/date-table.vue"
 
 
 var validTypes = ['prev-month', 'today', 'next-month'];
+var weekDays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 var oneDay = 86400000;
 
 /* harmony default export */ var mainvue_type_script_lang_js_ = ({
@@ -659,7 +705,9 @@ var oneDay = 86400000;
   mixins: [locale_default.a],
 
   components: {
-    DateTable: date_table
+    DateTable: date_table,
+    ElButton: button_default.a,
+    ElButtonGroup: button_group_default.a
   },
 
   props: {
@@ -675,6 +723,10 @@ var oneDay = 86400000;
           return true;
         }
       }
+    },
+    firstDayOfWeek: {
+      type: Number,
+      default: 1
     }
   },
 
@@ -710,6 +762,16 @@ var oneDay = 86400000;
         throw new Error('invalid val');
       }
       return val instanceof Date ? val : new Date(val);
+    },
+    rangeValidator: function rangeValidator(date, isStart) {
+      var firstDayOfWeek = this.realFirstDayOfWeek;
+      var expected = isStart ? firstDayOfWeek : firstDayOfWeek === 0 ? 6 : firstDayOfWeek - 1;
+      var message = (isStart ? 'start' : 'end') + ' of range should be ' + weekDays[expected] + '.';
+      if (date.getDay() !== expected) {
+        console.warn('[ElementCalendar]', message, 'Invalid range will be ignored.');
+        return false;
+      }
+      return true;
     }
   },
 
@@ -754,7 +816,8 @@ var oneDay = 86400000;
     date: function date() {
       if (!this.value) {
         if (this.realSelectedDay) {
-          return new Date(this.selectedDay);
+          var d = this.selectedDay.split('-');
+          return new Date(d[0], d[1] - 1, d[2]);
         } else if (this.validatedRange.length) {
           return this.validatedRange[0][0];
         }
@@ -771,21 +834,9 @@ var oneDay = 86400000;
 
       var range = this.range;
       if (!range) return [];
-      var expetedMap = {
-        0: {
-          value: 1,
-          message: 'start of range should be Monday.'
-        },
-        1: {
-          value: 0,
-          message: 'end of range should be Sunday.'
-        }
-      };
       range = range.reduce(function (prev, val, index) {
         var date = _this.toDate(val);
-        if (date.getDay() !== expetedMap[index].value) {
-          console.warn('[ElementCalendar]', expetedMap[index].message, ' invalid range will be ignored');
-        } else {
+        if (_this.rangeValidator(date, index === 0)) {
           prev = prev.concat(date);
         }
         return prev;
@@ -810,9 +861,20 @@ var oneDay = 86400000;
           console.warn('[ElementCalendar]start time and end time interval must not exceed two months');
           return [];
         }
+        // 第一个月的时间范围
         data.push([start, lastDay]);
-        var interval = startDay.getDay();
-        interval = interval <= 1 ? Math.abs(interval - 1) : 8 - interval;
+        // 下一月的时间范围，需要计算一下该月的第一个周起始日
+        var firstDayOfWeek = this.realFirstDayOfWeek;
+        var nextMontFirstDay = startDay.getDay();
+        var interval = 0;
+        if (nextMontFirstDay !== firstDayOfWeek) {
+          if (firstDayOfWeek === 0) {
+            interval = 7 - nextMontFirstDay;
+          } else {
+            interval = firstDayOfWeek - nextMontFirstDay;
+            interval = interval > 0 ? interval : 7 + interval;
+          }
+        }
         startDay = this.toDate(startDay.getTime() + interval * oneDay);
         if (startDay.getDate() < end.getDate()) {
           data.push([startDay, end]);
@@ -820,6 +882,12 @@ var oneDay = 86400000;
         return data;
       }
       return [];
+    },
+    realFirstDayOfWeek: function realFirstDayOfWeek() {
+      if (this.firstDayOfWeek < 1 || this.firstDayOfWeek > 6) {
+        return 0;
+      }
+      return Math.floor(this.firstDayOfWeek);
     }
   },
 

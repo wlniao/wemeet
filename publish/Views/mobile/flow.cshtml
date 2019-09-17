@@ -271,7 +271,7 @@
                 <div class="flow-container">
                     <div class="flow-body-avatar"><img :src="body.create_avatar" /></div>
                     <div class="flow-body-main">
-                        <div class="flow-body-name">{{body.create_name}}<span class="flow-body-time">{{body.create_time}}</span></div>
+                        <div class="flow-body-name">{{body.create_name}}<span class="flow-body-time">{{body.create_time}}发起</span></div>
                         <div class="flow-body-status">{{body.status}}</div>
                         <div class="flow-body-draft" :style="{color:body.color,borderColor:body.color}" v-if="body.finish > 1">{{body.draft}}</div>
                     </div>
@@ -396,7 +396,7 @@
                             Vue.prototype.hideLoading();
                             if (res.success) {
                                 t.notify(res.message)
-                                t.$router.back()
+                                t.loadBody()
                             } else {
                                 t.alert(res.message)
                             }
