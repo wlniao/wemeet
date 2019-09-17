@@ -1,6 +1,9 @@
 ﻿@{ Layout = "_master.cshtml";}
 @section head{
     <style>
+        .empty {
+            color:#9c9c9c;
+        }
         .dingtalk::before {
             height: 0px !important;
         }
@@ -21,19 +24,19 @@
                 </yd-preview-item>
                 <yd-preview-item>
                     <div slot="left">议题名称</div>
-                    <div slot="right">{{body.title}}</div>
+                    <div slot="right"><font v-if="body.title">{{body.title}}</font><font class="empty" v-else>未填写</font></div>
                 </yd-preview-item>
                 <yd-preview-item>
                     <div slot="left">议题内容</div>
-                    <div slot="right">{{body.content}}</div>
+                    <div slot="right"><font v-if="body.content">{{body.content}}</font><font class="empty" v-else>未填写</font></div>
                 </yd-preview-item>
                 <yd-preview-item>
                     <div slot="left">参会成员</div>
-                    <div slot="right">{{body.participant}}</div>
+                    <div slot="right"><font v-if="body.participant">{{body.participant}}</font><font class="empty" v-else>未填写</font></div>
                 </yd-preview-item>
                 <yd-preview-item>
                     <div slot="left">申报部门</div>
-                    <div slot="right">{{body.department}}</div>
+                    <div slot="right"><font v-if="body.department">{{body.department}}</font><font class="empty" v-else>未填写</font></div>
                 </yd-preview-item>
                 <yd-preview-item v-if="body.duration>0">
                     <div slot="left">预计时长</div>

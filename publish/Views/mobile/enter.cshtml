@@ -1,6 +1,106 @@
 ﻿@{ Layout = "_master.cshtml";}
 @section head{
     <style>
+        .enter-meet {
+            position: relative;
+            margin-top: 0.2rem;
+            padding: 0.2rem 0.5rem;
+            background-color: #ffffff;
+        }
+            .enter-meet:before {
+                height: 1px;
+                position: absolute;
+                z-index: 0;
+                top: 0;
+                left: 0;
+                content: "";
+                width: 100%;
+                background-image: -webkit-linear-gradient(bottom,#ececec 50%,transparent 0);
+                background-image: linear-gradient(0deg,#ececec 50%,transparent 0);
+            }
+            .enter-meet:after {
+                height: 1px;
+                position: absolute;
+                z-index: 0;
+                bottom: 0;
+                left: 0;
+                content: "";
+                width: 100%;
+                background-image: -webkit-linear-gradient(bottom,#ececec 50%,transparent 0);
+                background-image: linear-gradient(0deg,#ececec 50%,transparent 0);
+            }
+        .enter-meet-line {
+            height: 1px;
+            width: 100%;
+            content: " ";
+            font-size: 0;
+            display: block;
+            margin: 0.1rem 0;
+            background-image: -webkit-linear-gradient(bottom,#ececec 50%,transparent 0);
+            background-image: linear-gradient(0deg,#ececec 50%,transparent 0);
+        }
+        .enter-meet-head {
+            width: 100%;
+            display: table;
+        }
+        .enter-meet-avatar {
+            width: 0.7rem;
+            display: table-cell;
+            text-align: right;
+            vertical-align: top;
+        }
+        .enter-meet-avatar img {
+            width: 0.6rem;
+            height: 0.6rem;
+            overflow:hidden;
+            border-radius: 50%;
+            margin-right: 0.05rem;
+            /*border: 0.02rem solid #9c9c9c;*/
+        }
+        .enter-meet-content {
+            display: table-cell;
+            vertical-align: top;
+        }
+        .enter-meet-name {
+            font-size: 0.3rem;
+            line-height: 0.4rem;
+        }
+        .enter-meet-text {
+            color: #9c9c9c;
+            font-size: 0.2rem;
+            line-height: 0.3rem;
+        }
+        .enter-meet-empty {
+            padding: 0.5rem;
+            text-align: center;
+            font-size: 0.3rem;
+            color: #6c6c6c;
+        }
+            .enter-meet-empty > img {
+                width: 80%;
+                margin: 0.3rem auto;
+                display: block;
+            }
+        .enter-meet-item {
+            border-radius: 0.1rem;
+            overflow: hidden;
+            color: #9c9c9c;
+            font-size: 0.24rem;
+            line-height: 0.3rem;
+            box-shadow: 0 0 0.1rem #d0d0d0;
+            padding: 0.1rem 0.2rem;
+            margin-bottom: 0.2rem;
+            min-height: 1.8rem;
+            background-color: #fdfdfd;
+        }
+        .enter-meet-item-title {
+            color: #000000;
+            padding: 0.1rem 0;
+            font-size: 0.32rem;
+            line-height: 0.36rem;
+            margin-bottom: 0.1rem;
+            border-bottom: 1px solid #ececec;
+        }
     </style>
 }
 @section body{
@@ -20,6 +120,29 @@
                     <span slot="text">由我发起</span>
                 </yd-grids-item>
             </yd-grids-group>
+            <div class="enter-meet" v-if="success">
+                <div class="enter-meet-head">
+                    <div class="enter-meet-avatar"><img src="@ViewBag.Avatar" /></div>
+                    <div class="enter-meet-content">
+                        <div class="enter-meet-name">会议提醒</div>
+                        <div class="enter-meet-text">需要我参加的会议</div>
+                    </div>
+                </div>
+                <div class="enter-meet-line" style="margin-bottom:0.2rem"></div>
+                <div class="enter-meet-list">
+                    <div class="enter-meet-empty" v-if="meets.length == 0">
+                        <img src="/flow/empty.jpg" />
+                        <div>还没有需要参加的会议</div>
+                    </div>
+                    <div class="enter-meet-item" v-else v-for="item in meets">
+                        <div class="enter-meet-item-title">{{item.title}}</div>
+                        <div class="enter-meet-item-body">
+                            <div>时间：{{item.time}}</div>
+                            <div>地点：{{item.address}}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </template>
 }
@@ -29,7 +152,7 @@
             template: '#main',
             data: function () {
                 return {
-                    key: ''
+                    meets: []
                 }
             },
             methods: {
@@ -42,8 +165,17 @@
                 toMemberLogs: function () {
                     location.href = vpath + '/memberlogs'
                 },
+                load: function () {
+                    let t = this
+                    Vue.prototype.showLoading();
+                    t.api.get(location.pathname + '?do=load').then(res => {
+                        Vue.prototype.hideLoading();
+                        for (var i in res) { t[i] = res[i] }
+                    }, res => { })
+                },
             }, mounted() {
                 document.title = '会议助手'
+                this.load()
             }
         })
         router = new VueRouter({
