@@ -2928,6 +2928,7 @@
         "dependencies": {
           "Autofac": "4.9.2",
           "Autofac.Extensions.DependencyInjection": "4.4.0",
+          "Wlniao.Dingtalk": "0.0.5",
           "Wlniao.XCore": "2.1.20"
         },
         "runtime": {
