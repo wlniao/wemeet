@@ -57,7 +57,7 @@
                         <el-input v-model="form.title" placeholder="请输入会议名称" style="width:500px"></el-input>
                     </el-form-item>
                     <el-form-item label="会议时间">
-                        <el-date-picker v-model="form.time" type="datetime" placeholder="选择日期时间" format="yyyy-MM-dd HH:mm" value-format="yyyy-MM-dd HH:mm" style="width:200px"></el-date-picker>
+                        <el-date-picker v-model="form.time" type="datetime" placeholder="选择日期时间" default-time="10:00:00" format="yyyy-MM-dd HH:mm" value-format="yyyy-MM-dd HH:mm" style="width:200px"></el-date-picker>
                         &nbsp;&nbsp;地点：<el-input v-model="form.address" placeholder="请输入会议地址" style="width:245px"></el-input>
                     </el-form-item>
                     <el-form-item>

@@ -101,6 +101,9 @@
             margin-bottom: 0.1rem;
             border-bottom: 1px solid #ececec;
         }
+        .enter-meet-item-body {
+            line-height: 0.4rem;
+        }
     </style>
 }
 @section body{
@@ -108,7 +111,8 @@
         <div>
             <yd-grids-group :rows="3">
                 <yd-grids-item @@click.native="toFlows(0)">
-                    <yd-icon slot="icon" name="feedback" color="#FF685D"></yd-icon>
+                    <yd-badge slot="else" type="danger" v-if="need" style="top:15%;right:24%;position:absolute;">{{need}}</yd-badge>
+                    <yd-icon slot="icon" name="feedback" color="#409eff"></yd-icon>
                     <span slot="text">待我处理</span>
                 </yd-grids-item>
                 <yd-grids-item @@click.native="toFlows(1)">
@@ -116,7 +120,7 @@
                     <span slot="text">我已处理</span>
                 </yd-grids-item>
                 <yd-grids-item @@click.native="toFlows(2)">
-                    <yd-icon slot="icon" name="shield" color="#2884EB"></yd-icon>
+                    <yd-icon slot="icon" name="shield" color="#bd35d4"></yd-icon>
                     <span slot="text">由我发起</span>
                 </yd-grids-item>
             </yd-grids-group>
@@ -138,7 +142,7 @@
                         <div class="enter-meet-item-title">{{item.title}}</div>
                         <div class="enter-meet-item-body">
                             <div>时间：{{item.time}}</div>
-                            <div>地点：{{item.address}}</div>
+                            <div>地点：<font v-if="item.address">{{item.address}}</font><font style="color:#9c9c9c">未填写</font></div>
                         </div>
                     </div>
                 </div>
@@ -152,6 +156,7 @@
             template: '#main',
             data: function () {
                 return {
+                    need: parseInt('@ViewBag.Need'),
                     meets: []
                 }
             },

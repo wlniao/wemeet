@@ -2,26 +2,47 @@
 @section head{
     <style>
         .empty {
-            color:#9c9c9c;
+            color: #9c9c9c;
         }
+
         .dingtalk::before {
             height: 0px !important;
         }
+
         .yd-preview-item > :last-child {
             color: #111111;
             text-align: left !important;
         }
-        .fileitem{
 
+        .fileitem {
+            width: 5rem;
+            font-size: 0;
+            display: table;
+            padding: 0.1rem;
+            cursor: pointer;
+            height: 0.64rem;
+            border: 1px solid #efefef;
+            margin-bottom: 0.1rem;
+            border-radius: 0.1rem;
         }
-            .fileitem > * {
-                line-height: 0.3rem;
-            }
-            .fileitem img {
-                width: 0.3rem;
-                height: 0.3rem;
-                vertical-align: -2px;
-            }
+
+        .fileitem > * {
+            font-size: 0;
+            display: table-cell;
+            line-height: 0.3rem;
+            vertical-align: middle;
+        }
+        .fileitem img {
+            width: 0.64rem;
+            height: 0.64rem;
+            vertical-align: inherit;
+        }
+        .fileitem > div:first-child {
+            width: 0.64rem;
+        }
+        .fileitem > div:last-child {
+            font-size: 0.28rem;
+        }
     </style>
 }
 @section body{
@@ -56,11 +77,8 @@
                 <yd-preview-item v-if="body.files.length>0">
                     <div slot="left">附件资料</div>
                     <div slot="right">
-                        <div class="fileitem" v-for="file in body.files">
-                            <font>{{file.name}}</font>
-                            <a :href="file.link" target="_blank"><img src="/svg/down.svg" /></a>
-                            <a :href="file.preview" target="_blank" v-if="file.preview"><img src="/svg/view.svg" /></a>
-
+                        <div class="fileitem" v-on:click="toFile(file)" v-for="file in body.files">
+                            <div><img src="/svg/file.svg" /></div><div>{{file.name}}</div>
                         </div>
                     </div>
                 </yd-preview-item>
@@ -85,13 +103,26 @@
                         files: [],
                         success: true
                     },
-                    btns:[]
+                    btns: []
                 }
             },
             methods: {
-                toFile: function (path) {
-                    location.href = vpath + '/flows?type=' + path
+                toFile(obj) {
+                    if (parent && typeof parent.openFile == 'function') {
+                        parent.openFile({ name: obj.name, link: obj.link, url: location.protocol + '//' + location.hostname + obj.key });
+                    } else {
+                        window.open(obj.link)
+                    }
                 },
+                send(key) {
+                    this.api.post(location.pathname + '?do=upload', { id: this.body.id, key: key }).then(res => {
+                        if (res.success) {
+                            this.api.post(location.pathname + '?do=send', { key: key }).then(res => {
+                                alert(res.message)
+                            }, res => { })
+                        }
+                    }, res => { })
+                }
             }, mounted() {
                 let t = this
                 t.api.post(location.pathname + '?do=body', { id: t.$route.query.id }).then(res => {

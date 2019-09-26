@@ -1,6 +1,7 @@
 ﻿@{ Layout = "_master.cshtml";}
 @section head{
-<style>
+    <script src="https://g.alicdn.com/dingding/dingtalk-jsapi/2.7.13/dingtalk.open.js"></script>
+    <style>
         .flow-body, .flow-action {
             top: 0;
             left: 0;
@@ -8,9 +9,11 @@
             bottom: 0;
             position: absolute;
         }
+
         .flow-container {
             padding: 0 0.3rem;
         }
+
         .flow-body-head {
             top: 0;
             left: 0;
@@ -19,68 +22,77 @@
             position: absolute;
             background: #ffffff;
         }
-        .flow-body-head .flow-container, .flow-body-foot .flow-container {
-            width:100%;
-            display: table;
-            margin-top: 0.15rem;
-            margin-bottom: 0.15rem;
-        }
+
+            .flow-body-head .flow-container, .flow-body-foot .flow-container {
+                width: 100%;
+                display: table;
+                margin-top: 0.15rem;
+                margin-bottom: 0.15rem;
+            }
+
         .flow-body-avatar {
             width: 1rem;
             display: table-cell;
             text-align: center;
             vertical-align: top;
         }
-        .flow-body-avatar img {
-            width: 0.7rem;
-            height: 0.7rem;
-            border-radius: 50%;
-        }
+
+            .flow-body-avatar img {
+                width: 0.7rem;
+                height: 0.7rem;
+                border-radius: 50%;
+            }
+
         .flow-body-name {
             font-size: 0.3rem;
         }
+
         .flow-body-status {
             color: #9c9c9c;
             font-size: 0.24rem;
         }
-    .flow-body-draft {
-        top: 0.5rem;
-        right: 0.5rem;
-        font-size: 0.5rem;
-        font-weight: bold;
-        position: absolute;
-        border: solid 0.1em transparent;
-        padding: 0.1em 0.5em;
-        border-radius: 0.2em;
-        color: transparent;
-        transform-origin: 50% 50%;
-        transform: rotate(-15deg) scale(1);
-        transition: all 0.3s cubic-bezier(0.6, 0.04, 0.98, 0.335);
-        animation: showDraft 0.6s;
-        user-select: none;
-        z-index: 3;
-    }
-    @@keyframes showDraft {
-        from {
-            opacity: 0;
-            transform: rotate(-30deg) scale(5);
+
+        .flow-body-draft {
+            top: 0.5rem;
+            right: 0.5rem;
+            font-size: 0.5rem;
+            font-weight: bold;
+            position: absolute;
+            border: solid 0.1em transparent;
+            padding: 0.1em 0.5em;
+            border-radius: 0.2em;
+            color: transparent;
+            transform-origin: 50% 50%;
+            transform: rotate(-15deg) scale(1);
+            transition: all 0.3s cubic-bezier(0.6, 0.04, 0.98, 0.335);
+            animation: showDraft 0.6s;
+            user-select: none;
+            z-index: 3;
         }
 
-        to {
-            opacity: 0.75;
-            transform: rotate(-15deg) scale(1);
+        @@keyframes showDraft {
+            from {
+                opacity: 0;
+                transform: rotate(-30deg) scale(5);
+            }
+
+            to {
+                opacity: 0.75;
+                transform: rotate(-15deg) scale(1);
+            }
         }
-    }
 
         .flow-body-time {
             color: #9c9c9c;
             font-size: 0.24rem;
             padding-left: 0.2rem;
         }
+
         .flow-body-main {
             display: table-cell;
             vertical-align: top;
         }
+
         .flow-body-head {
             top: 0;
             left: 0;
@@ -89,6 +101,7 @@
             position: absolute;
             background: #ffffff;
         }
+
         .flow-body-page {
             top: 1rem;
             left: 0;
@@ -96,10 +109,12 @@
             bottom: 1rem;
             position: absolute;
         }
+
         .flow-history {
             z-index: 2;
             background: rgba(256,256,256,1);
         }
+
         .flow-body-foot {
             left: 0;
             right: 0;
@@ -110,54 +125,62 @@
             position: absolute;
             background: #ffffff;
         }
+
         .flow-body-icon {
             display: table-cell;
         }
+
         .flow-body-btns {
             width: 3.6rem;
             font-size: 0;
             text-align: right;
             display: table-cell;
         }
-        .flow-body-btns > * {
-            margin:0;
-            font-size:0;
-        }
-        .flow-body-btns > button {
-            height: 0.6rem;
-            margin-top: -0.06rem;
-            line-height: 0.65rem;
-            vertical-align: middle;
-            padding: 0 0.5rem;
-            font-size: 0.3rem;
-            text-align: center;
-            border: 1px solid #2196F3;
-            pointer-events: auto;
-            box-sizing: content-box;
-            border-radius: 0;
-        }
-        .flow-body-btns > button:first-child {
-            color: #2196F3;
-            border-right: none;
-            border-top-left-radius: 0.1rem;
-            border-bottom-left-radius: 0.1rem;
-        }
-        .flow-body-btns > button:last-child {
-            color: #ffffff;
-            border-left: none;
-            background: #2196F3;
-            border-top-right-radius: 0.1rem;
-            border-bottom-right-radius: 0.1rem;
-        }
+
+            .flow-body-btns > * {
+                margin: 0;
+                font-size: 0;
+            }
+
+            .flow-body-btns > button {
+                height: 0.6rem;
+                margin-top: -0.06rem;
+                line-height: 0.65rem;
+                vertical-align: middle;
+                padding: 0 0.5rem;
+                font-size: 0.3rem;
+                text-align: center;
+                border: 1px solid #2196F3;
+                pointer-events: auto;
+                box-sizing: content-box;
+                border-radius: 0;
+            }
+
+                .flow-body-btns > button:first-child {
+                    color: #2196F3;
+                    border-right: none;
+                    border-top-left-radius: 0.1rem;
+                    border-bottom-left-radius: 0.1rem;
+                }
+
+                .flow-body-btns > button:last-child {
+                    color: #ffffff;
+                    border-left: none;
+                    background: #2196F3;
+                    border-top-right-radius: 0.1rem;
+                    border-bottom-right-radius: 0.1rem;
+                }
+
         .flow-body-todo {
             color: #5f5f5f;
             text-align: center;
             display: table-cell;
         }
-        .flow-body-todo > div {
-            font-size: 0.2rem;
-            line-height: 0.2rem;
-        }
+
+            .flow-body-todo > div {
+                font-size: 0.2rem;
+                line-height: 0.2rem;
+            }
 
 
         .flow-action-main {
@@ -169,7 +192,12 @@
             background: #ffffff;
             border-bottom: 0.01rem solid #ececec;
         }
-        .flow-action-main .yd-textarea>textarea{ height:100% !important;line-height: 0.4rem;}
+
+            .flow-action-main .yd-textarea > textarea {
+                height: 100% !important;
+                line-height: 0.4rem;
+            }
+
         .flow-action-foot {
             left: 0;
             right: 0;
@@ -180,6 +208,7 @@
             position: absolute;
             background: #ffffff;
         }
+
         .flow-action-textarea {
             top: 0;
             left: 0;
@@ -190,79 +219,92 @@
             padding: 0.2rem 0.3rem;
             font-size: 0.3rem;
         }
+
         .flow-action-foot .yd-btn-block {
             margin-top: 0.2rem;
         }
-    .flow-history {
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 1rem;
-        position: absolute;
-    }
-    .flow-history-timeline {
-        height: 100%;
-        margin: 0.3rem;
-        overflow-x: hidden;
-    }
-    .flow-history-timeline-box {
-        font-size: 0;
-        margin-left: 0.5rem;
-        border-left: 0.06rem solid #e4e5e9;
-    }
-    .flow-history-item {
-        width: 7rem;
-        position: relative;
-        padding-bottom: 0.3rem;
-    }
-    .flow-history-item:last-child:before {
-        content: "";
-        width: 0.1rem;
-        height: 100%;
-        background-color: #fff;
-        position: absolute;
-        left: -0.06rem;
-        top: 0.65rem;
-    }
-    .flow-history-avatar {
-        width: 1rem;
-        text-align: center;
-        display: inline-block;
-        margin-left: -0.53rem;
-    }
-    .flow-history-avatar > img {
-        z-index: 1;
-        width: 0.7rem;
-        height: 0.7rem;
-        border-radius: 50%;
-        position: relative;
-    }
-    .flow-history-record {
-        width: 5.8rem;
-        color: #6c6c6c;
-        display: inline-block;
-        vertical-align: top;
-        font-size: 0.24rem;
-        font-weight: 400;
-        line-height: 0.5rem;
-    }
-    .flow-history-result {
-        color: #303030;
-        font-size: 0.32rem;
-    }
-    .flow-history-result > em {
-        float: right;
-        color: #9c9c9c;
-        font-size: 0.24rem;
-    }
-    .flow-history-operate {
-        font-size: 0.28rem;
-        color: #9c9c9c;
-    }
-    .flow-history-remark {
-        font-size: 0.28rem;
-    }
-</style>
+
+        .flow-history {
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 1rem;
+            position: absolute;
+        }
+
+        .flow-history-timeline {
+            height: 100%;
+            margin: 0.3rem;
+            overflow-x: hidden;
+        }
+
+        .flow-history-timeline-box {
+            font-size: 0;
+            margin-left: 0.5rem;
+            border-left: 0.06rem solid #e4e5e9;
+        }
+
+        .flow-history-item {
+            width: 7rem;
+            position: relative;
+            padding-bottom: 0.3rem;
+        }
+
+        .flow-history-item:last-child:before {
+            content: "";
+            width: 0.1rem;
+            height: 100%;
+            background-color: #fff;
+            position: absolute;
+            left: -0.06rem;
+            top: 0.65rem;
+        }
+
+        .flow-history-avatar {
+            width: 1rem;
+            text-align: center;
+            display: inline-block;
+            margin-left: -0.53rem;
+        }
+
+        .flow-history-avatar > img {
+            z-index: 1;
+            width: 0.7rem;
+            height: 0.7rem;
+            border-radius: 50%;
+            position: relative;
+        }
+
+        .flow-history-record {
+            width: 5.8rem;
+            color: #6c6c6c;
+            display: inline-block;
+            vertical-align: top;
+            font-size: 0.24rem;
+            font-weight: 400;
+            line-height: 0.5rem;
+        }
+
+        .flow-history-result {
+            color: #303030;
+            font-size: 0.32rem;
+        }
+
+        .flow-history-result > em {
+            float: right;
+            color: #9c9c9c;
+            font-size: 0.24rem;
+        }
+
+        .flow-history-operate {
+            font-size: 0.28rem;
+            color: #9c9c9c;
+        }
+
+        .flow-history-remark {
+            font-size: 0.28rem;
+        }
+    </style>
 }
 @section body{
     <template id="main">
@@ -294,7 +336,7 @@
                 <div class="flow-container" v-else>
                     <div class="flow-body-icon">
                         <div style="display:table;width:100%">
-                            <div class="flow-body-todo" v-on:click="toUrge" v-if="body.btn_cancel">
+                            <div class="flow-body-todo" v-on:click="toUrge" v-if="true||body.btn_cancel">
                                 <yd-icon name="discount" size="0.4rem"></yd-icon><div>催办</div>
                             </div>
                             <div class="flow-body-todo" v-on:click="toHistory">
@@ -323,7 +365,7 @@
                                 <p class="flow-history-result"><em>{{item.time}}</em>{{item.result}}</p>
                                 <p class="flow-history-operate">{{item.operate}}</p>
                                 <p class="flow-history-remark" v-if="item.remarks">"{{item.remarks}}"</p>
-                                
+
                             </div>
                         </div>
                     </div>
@@ -346,6 +388,7 @@
     </template>
 }
 @section foot{
+    <script src="/dingtalk.js?t=@ViewBag.TimeStamp"></script>
     <script type="text/javascript">
         vpath = "/@ViewBag.Controller";
         vaction = "/@ViewBag.Action";
@@ -364,7 +407,7 @@
                         create_avatar: '',
                         btn_cancel: false,
                         btn_action: false,
-                        btn_submit: false, 
+                        btn_submit: false,
                         success: false
                     },
                     history: {
@@ -483,5 +526,54 @@
                 { path: vpath + vaction + '/:id/reject', component: appAction }
             ]
         })
+        function openFile(file, fn) {
+            if (dd.ios || dd.android) {
+                dd.ready(() => {
+                    dd.biz.cspace.saveFile({
+                        url: file.url,
+                        name: file.name,
+                        corpId: wjs.corpId,
+                        onSuccess: function (e) {
+                            e.data[0].corpId = wjs.corpId;
+                            dd.biz.cspace.preview(e.data[0])
+                        },
+                        onFail: function (err) {
+                            dd.device.notification.alert({ message: err.errorMessage });
+                        }
+                    });
+                });
+            } else {
+                window.open(file.link)
+            }
+        }
+        function sendMsg(msg, fn) {
+            try {
+                dd.ready(function () {
+                    dd.biz.chat.pickConversation({
+                        userId: '02190440654337',
+                        isConfirm: false, //是否弹出确认窗口，默认为true
+                        corpId: wjs.corpId,
+                        onFail: function (err) { },
+                        onSuccess: function (info) {
+                            if (fn) {
+                                fn(info)
+                            } else {
+                                Vue.prototype.api.post(location.pathname + '?do=sendto&cid=' + info.cid, msg).then(res => {
+                                    alert(JSON.stringify(res));
+                                    if (res.success) {
+
+                                    }
+                                }, res => { })
+                            }
+                        }
+                    })
+                });
+                dd.error(function (err) {
+                    alert(JSON.stringify(err));
+                });
+            } catch (e) {
+                alert(e)
+            }
+        }
     </script>
 }

@@ -27,7 +27,7 @@
           "Microsoft.NETCore.App": "2.0.0",
           "Pomelo.EntityFrameworkCore.MySql": "2.2.0",
           "Wlniao.Aliyun": "0.0.1",
-          "Wlniao.Dingtalk": "0.0.5",
+          "Wlniao.Dingtalk": "0.0.6",
           "Wlniao.Flow": "1.0.0",
           "Wlniao.KeyStore": "1.0.0",
           "Wlniao.WeAPP": "0.2.7",
@@ -2913,7 +2913,7 @@
           "lib/netcoreapp2.0/Wlniao.XCore.dll": {}
         }
       },
-      "Wlniao.Dingtalk/0.0.5": {
+      "Wlniao.Dingtalk/0.0.6": {
         "dependencies": {
           "Wlniao.XCore": "2.1.20"
         },
@@ -2928,7 +2928,7 @@
         "dependencies": {
           "Autofac": "4.9.2",
           "Autofac.Extensions.DependencyInjection": "4.4.0",
-          "Wlniao.Dingtalk": "0.0.5",
+          "Wlniao.Dingtalk": "0.0.6",
           "Wlniao.XCore": "2.1.20"
         },
         "runtime": {
@@ -4564,7 +4564,7 @@
       "path": "wlniao.xcore/2.1.20",
       "hashPath": "wlniao.xcore.2.1.20.nupkg.sha512"
     },
-    "Wlniao.Dingtalk/0.0.5": {
+    "Wlniao.Dingtalk/0.0.6": {
       "type": "project",
       "serviceable": false,
       "sha512": ""
