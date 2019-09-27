@@ -11,10 +11,10 @@
             axios.create({ withCredentials: false }).post(location.pathname + '?do=check', obj).then(res => res.data).then(res => {
                 if (res.success) {
                     location.reload();
-                } else if (res.message == 'nouser') {
+                } else if (res.message == 'nojoin' || res.message == 'nouser') {
                     location.href = location.pathname + '?=' + res.message;
                 } else {
-                    alert(res.message)
+                    dd.device.notification.alert({ message: res.message });
                 }
             })
         }
@@ -25,7 +25,17 @@
                 dd.runtime.permission.requestAuthCode({
                     corpId: "@Html.Raw(ViewBag.DingCorpId)", // 企业id
                     onFail: function (err) {
-                        alert(err.errorMessage)
+                        if (err.errorMessage.indexOf('1002') == 0) {
+                            dd.device.notification.alert({
+                                title: "@Html.Raw(ViewBag.DingCorpName)",
+                                message: '您不是本组织的内部成员,请先联系管理员申请加入组织。',
+                                onSuccess: function () {
+                                    dd.biz.navigation.close()
+                                }
+                            })
+                        } else {
+                            dd.device.notification.alert({ message: err.errorMessage });
+                        }
                     },
                     onSuccess: function (info) {
                         check(info)
