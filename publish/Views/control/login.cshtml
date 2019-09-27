@@ -6,11 +6,13 @@
 <link rel="stylesheet" href="/css/xcenter.css?v=1908" />
 <link rel="stylesheet" href="/js/element/theme-chalk/index.css?v=1908" />
 <link rel="stylesheet" href="/css/wemeet.css?v=1908" />
+<script type="text/javascript" src="/js/md5.js"></script>
 <script type="text/javascript" src="/js/axios.min.js"></script>
 <script type="text/javascript" src="/js/vue.min.js"></script>
 <script type="text/javascript" src="/js/vue-router.min.js"></script>
 <script type="text/javascript" src="/js/vue-wlnctrl.js"></script>
 <script type="text/javascript" src="/js/element/index.js"></script>
+<script type="text/javascript" src="/js/vue-qriously.js"></script>
 <style type="text/css">
 * {margin:0px;padding:0px;user-select:none;}
 html,body {width:100%;height:100%;display:table;}
@@ -35,9 +37,10 @@ body {position:fixed;z-index:-1;top:0;right:0;bottom:0;left:0;background:#909090
         <div class="container">
             <div class="tabs">
                 <div class="tab-item" v-on:click="setTab(0)" v-bind:class="{active:tab===0}">管理登录</div>
+                <div class="tab-item" v-on:click="setTab(1)" v-bind:class="{active:tab===1}">扫码登录</div>
             </div>
             <div class="boxs">
-                <div class="form">
+                <div class="form" v-if="tab===0">
                     <div>
                         <label>用户名：</label><input v-model="username" type="text" />
                     </div>
@@ -46,6 +49,14 @@ body {position:fixed;z-index:-1;top:0;right:0;bottom:0;left:0;background:#909090
                     </div>
                     <div>
                         <button class="submit" @@click="toLogin()">登录</button>
+                    </div>
+                </div>
+                <div class="form" v-else-if="tab===1">
+                    <div style="text-align:center;padding-left:70px;">
+                        <div style="padding:20px;">
+                            <qriously :value="qrtext" :size="200" />
+                        </div>
+                        <div style="line-height:30px;">请使用钉钉扫码登录</div>
                     </div>
                 </div>
                 <div class="copyright">技术支持 &copy; 未来鸟软件 &nbsp; WID：@ViewBag.WeCode</div>
@@ -57,18 +68,42 @@ body {position:fixed;z-index:-1;top:0;right:0;bottom:0;left:0;background:#909090
             el: '#app',
             data: {
                 tab: 0,
+                timer:'',
+                qrcode:'',
                 username: '',
                 password: ''
             },
+            computed: {
+                qrtext() {
+                    return 'http://' + location.hostname + '/qrscan/' + this.qrcode
+                }
+            },
             methods: {
                 setTab(index) {
-                    if (index > 0) {
+                    let t = this
+                    if (index > 1) {
                         return Vue.prototype.$message({ message: '暂未支持此登录方式', type: 'error' })
                     }
-                    this.tab = index
+                    if (index == 1 && t.qrcode === '') {
+                        t.qrcode = Math.random().toString(36).substr(3) + Math.random().toString(36).substr(3) + Math.random().toString(36).substr(3) + Math.random().toString(36).substr(3);
+                        if (!t.timer) {
+                            t.timer = setInterval(() => {
+                                if (t.tab == 1) {
+                                    asyncPost(location.pathname + '?do=qrtoken', { code: this.qrcode }).then(res => {
+                                        if (res.success) {
+                                            clearInterval(t.timer)
+                                            sessionStorage.removeItem('console')
+                                            location.href = '/'
+                                        }
+                                    })
+                                }
+                            }, 1000)
+                        }
+                    }
+                    t.tab = index
                 },
                 toLogin() {
-                    get(location.pathname, { 'do': 'login', username: this.username, password: this.password }).then(res => {
+                    post(location.pathname + '?do=login', { username: this.username, password: hex_md5(hex_md5(hex_md5(this.password))) }).then(res => {
                         if (res.success) {
                             sessionStorage.removeItem('console')
                             location.href = '/'
