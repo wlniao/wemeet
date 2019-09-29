@@ -1,6 +1,5 @@
 ﻿@{ Layout = "_master.cshtml";}
 @section head{
-    <script src="https://g.alicdn.com/dingding/dingtalk-jsapi/2.7.13/dingtalk.open.js"></script>
     <style>
         .flow-body, .flow-action {
             top: 0;
@@ -250,15 +249,15 @@
             padding-bottom: 0.3rem;
         }
 
-        .flow-history-item:last-child:before {
-            content: "";
-            width: 0.1rem;
-            height: 100%;
-            background-color: #fff;
-            position: absolute;
-            left: -0.06rem;
-            top: 0.65rem;
-        }
+            .flow-history-item:last-child:before {
+                content: "";
+                width: 0.1rem;
+                height: 100%;
+                background-color: #fff;
+                position: absolute;
+                left: -0.06rem;
+                top: 0.65rem;
+            }
 
         .flow-history-avatar {
             width: 1rem;
@@ -267,13 +266,13 @@
             margin-left: -0.53rem;
         }
 
-        .flow-history-avatar > img {
-            z-index: 1;
-            width: 0.7rem;
-            height: 0.7rem;
-            border-radius: 50%;
-            position: relative;
-        }
+            .flow-history-avatar > img {
+                z-index: 1;
+                width: 0.7rem;
+                height: 0.7rem;
+                border-radius: 50%;
+                position: relative;
+            }
 
         .flow-history-record {
             width: 5.8rem;
@@ -290,11 +289,11 @@
             font-size: 0.32rem;
         }
 
-        .flow-history-result > em {
-            float: right;
-            color: #9c9c9c;
-            font-size: 0.24rem;
-        }
+            .flow-history-result > em {
+                float: right;
+                color: #9c9c9c;
+                font-size: 0.24rem;
+            }
 
         .flow-history-operate {
             font-size: 0.28rem;
@@ -389,6 +388,7 @@
 }
 @section foot{
     <script src="/dingtalk.js?t=@ViewBag.TimeStamp"></script>
+    <script src="/js/dingtalk.js?t=@ViewBag.TimeStamp"></script>
     <script type="text/javascript">
         vpath = "/@ViewBag.Controller";
         vaction = "/@ViewBag.Action";
@@ -526,54 +526,5 @@
                 { path: vpath + vaction + '/:id/reject', component: appAction }
             ]
         })
-        function openFile(file, fn) {
-            if (dd.ios || dd.android) {
-                dd.ready(() => {
-                    dd.biz.cspace.saveFile({
-                        url: file.url,
-                        name: file.name,
-                        corpId: wjs.corpId,
-                        onSuccess: function (e) {
-                            e.data[0].corpId = wjs.corpId;
-                            dd.biz.cspace.preview(e.data[0])
-                        },
-                        onFail: function (err) {
-                            dd.device.notification.alert({ message: err.errorMessage });
-                        }
-                    });
-                });
-            } else {
-                window.open(file.link)
-            }
-        }
-        function sendMsg(msg, fn) {
-            try {
-                dd.ready(function () {
-                    dd.biz.chat.pickConversation({
-                        userId: '02190440654337',
-                        isConfirm: false, //是否弹出确认窗口，默认为true
-                        corpId: wjs.corpId,
-                        onFail: function (err) { },
-                        onSuccess: function (info) {
-                            if (fn) {
-                                fn(info)
-                            } else {
-                                Vue.prototype.api.post(location.pathname + '?do=sendto&cid=' + info.cid, msg).then(res => {
-                                    alert(JSON.stringify(res));
-                                    if (res.success) {
-
-                                    }
-                                }, res => { })
-                            }
-                        }
-                    })
-                });
-                dd.error(function (err) {
-                    alert(JSON.stringify(err));
-                });
-            } catch (e) {
-                alert(e)
-            }
-        }
     </script>
 }

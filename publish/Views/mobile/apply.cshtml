@@ -108,8 +108,8 @@
             },
             methods: {
                 toFile(obj) {
-                    if (parent && typeof parent.openFile == 'function') {
-                        parent.openFile({ name: obj.name, link: obj.link, url: location.protocol + '//' + location.hostname + obj.key });
+                    if (parent && typeof parent.openDocs == 'function') {
+                        parent.openDocs({ name: obj.name, link: obj.link, url: location.protocol + '//' + location.hostname + obj.key });
                     } else {
                         window.open(obj.link)
                     }

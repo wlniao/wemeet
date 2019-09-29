@@ -76,11 +76,11 @@
             font-size: 0.3rem;
             color: #6c6c6c;
         }
-            .enter-meet-empty > img {
-                width: 80%;
-                margin: 0.3rem auto;
-                display: block;
-            }
+        .enter-meet-empty > img {
+            width: 80%;
+            margin: 0.3rem auto;
+            display: block;
+        }
         .enter-meet-item {
             border-radius: 0.1rem;
             overflow: hidden;
@@ -98,11 +98,23 @@
             padding: 0.1rem 0;
             font-size: 0.32rem;
             line-height: 0.36rem;
-            margin-bottom: 0.1rem;
-            border-bottom: 1px solid #ececec;
         }
         .enter-meet-item-body {
+            padding: 0.1rem 0;
+            margin: 0.1rem auto;
+            border-top: 1px solid #ececec;
+            border-bottom: 1px solid #ececec;
             line-height: 0.4rem;
+        }
+        .enter-meet-item-foot > font{
+            line-height:0.5rem;
+        }
+        .enter-meet-item-foot .yd-btn {
+            height: 0.5rem;
+            float:right;
+        }
+        .enter-meet-item-foot .yd-btn i {
+            vertical-align: middle;
         }
     </style>
 }
@@ -143,6 +155,12 @@
                         <div class="enter-meet-item-body">
                             <div>时间：{{item.time}}</div>
                             <div>地点：<font v-if="item.address">{{item.address}}</font><font style="color:#9c9c9c">未填写</font></div>
+                            <div v-if="item.participants">人员：{{item.participants}}</div>
+                        </div>
+                        <div class="enter-meet-item-foot">
+                            <font style="color:#ffb400">未确认</font>
+                            <font style="color:#04be02">已确认</font>
+                            <yd-button type="primary" @@click.stop.native="toMeet(item.id)"><yd-icon name="feedback" size="0.24rem"></yd-icon> 议题资料查看</yd-button>
                         </div>
                     </div>
                 </div>
@@ -177,6 +195,9 @@
                         Vue.prototype.hideLoading();
                         for (var i in res) { t[i] = res[i] }
                     }, res => { })
+                },
+                toMeet: function (id) {
+                    location.href = vpath + '/meet?id=' + id
                 },
             }, mounted() {
                 document.title = '会议助手'
