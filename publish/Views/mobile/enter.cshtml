@@ -158,8 +158,8 @@
                             <div v-if="item.participants">人员：{{item.participants}}</div>
                         </div>
                         <div class="enter-meet-item-foot">
-                            <font style="color:#ffb400">未确认</font>
-                            <font style="color:#04be02">已确认</font>
+                            @*<font style="color:#ffb400">未确认</font>
+                            <font style="color:#04be02">已确认</font>*@
                             <yd-button type="primary" @@click.stop.native="toMeet(item.id)"><yd-icon name="feedback" size="0.24rem"></yd-icon> 议题资料查看</yd-button>
                         </div>
                     </div>
@@ -197,10 +197,11 @@
                     }, res => { })
                 },
                 toMeet: function (id) {
-                    location.href = vpath + '/meet?id=' + id
+                    location.href = vpath + '/meet?id=' + id + '&showmenu=false';
                 },
             }, mounted() {
                 document.title = '会议助手'
+                try { dd.biz.navigation.setTitle({ title: '会议助手' }); } catch (e) { }
                 this.load()
             }
         })

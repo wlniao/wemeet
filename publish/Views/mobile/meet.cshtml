@@ -117,6 +117,7 @@
                     if (res.success) {
                         for (var i in res) { t[i] = res[i] }
                         document.title = res.title
+                        try { dd.biz.navigation.setTitle({ title: res.title }); } catch (e) { }
                     }
                 }, res => { })
             }
