@@ -55,7 +55,7 @@
     <template id="main">
         <div>
             <yd-accordion>
-                <yd-accordion-item :title="item.index + '. ' + item.title" v-for="item in topics">
+                <yd-accordion-item :title="item.index + '. ' + item.title" v-for="(item,index) in topics" :open="index==0">
                     <yd-preview :buttons="btns">
                         <div style="padding-top:0.3rem"></div>
                         <yd-preview-item>
